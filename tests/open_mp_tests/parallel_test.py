@@ -35,8 +35,10 @@ def create_sample_system(parallel=False):
     for goal in constraints:
         psystem.add_goal_to_system(goal)
 
-    psystem.solve(max_iter=10000, parallel=parallel)
+    psystem.solve(max_iter=1000, parallel=parallel)
+    print(psystem.particle_velocities)
     print(psystem.particle_positions)
+    print(psystem.num_iter)
 
 cProfile.run('create_sample_system(False)')
 

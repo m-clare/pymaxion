@@ -19,8 +19,9 @@ from pymaxion.particle cimport Particle
 from pymaxion.geometry.Vector3d cimport Vector3d
 
 cdef class ParticleSystem(object):
-    cdef int n_goals
-    cdef int n_particles
+    cdef public int n_goals
+    cdef public int n_particles
+    cdef public int num_iter
     cdef PyObject **goals
     cdef PyObject **particles
     cdef public list ref_goals
@@ -35,6 +36,7 @@ cdef class ParticleSystem(object):
         self.particles = NULL
         self.n_goals = 0
         self.n_particles = 0
+        self.num_iter = 0
 
     def __init__(ParticleSystem self):
         self.ref_goals = []
@@ -70,20 +72,49 @@ cdef class ParticleSystem(object):
             self.particle_positions[i, :] = particle.position
             self.particle_velocities[i,:] = particle.velocity
 
-    cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
-        cdef int i
-        cdef int j
-        cdef int numiter
-        cdef bint flag
+    cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,
+                            double[:] p_weights, double[:, :] p_pos,
+                            double[:, :] p_vel) nogil:
         cdef double nx, ny, nz
         cdef double vx, vy, vz
         cdef Vector3d p_sum
+        nx = 0.0
+        ny = 0.0
+        nz = 0.0
+        if p_weights[j] != 0.0:
+            nx = p_moves[j, 0] / p_weights[j]
+            ny = p_moves[j, 1] / p_weights[j]
+            nz = p_moves[j, 2] / p_weights[j]
+        vx = p_vel[j, 0] + nx
+        vy = p_vel[j, 1] + ny
+        vz = p_vel[j, 2] + nz
+        if (nx*vx + ny*vy + nz*vz) < 0.0:
+            # reversed direction slowdown
+            vx = vx * 0.9
+            vy = vy * 0.9
+            vz = vz * 0.9
+        p_pos[j, 0] += nx
+        p_pos[j, 1] += ny
+        p_pos[j, 2] += nz
+        p_sum = Vector3d(nx, ny, nz)
+        if (p_sum.length() < 1e-6):
+            vx = 0.0
+            vy = 0.0
+            vz = 0.0
+        p_vel[j, 0] = vx
+        p_vel[j, 1] = vy
+        p_vel[j, 2] = vz
+
+    cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
+        cdef int i
+        cdef int j
+        cdef bint flag
         cdef double v_sum
 
         # assemble position matrix
         self.initialize_system()
         flag = False
-        numiter = 0
+        self.num_iter = 0
         # memory view must be created before nogil
         cdef double [:, :] p_pos = self.particle_positions
         cdef double [:, :] p_vel = self.particle_velocities
@@ -98,101 +129,33 @@ cdef class ParticleSystem(object):
             if flag == True:
                 break
             # release GIL for parallel constraint solve
-            if parallel:
-                with nogil:
+            with nogil:
+                if parallel:
                     for j in prange(self.n_goals):
                         (<Goal?>self.goals[j]).calculate(p_pos)
                     for j in range(self.n_goals):
                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
-                # move the particles
-                    for j in prange(self.n_particles):
-                        nx = 0.0
-                        ny = 0.0
-                        nz = 0.0
-                        if p_weights[j] != 0.0:
-                            nx = p_moves[j, 0] / p_weights[j]
-                            ny = p_moves[j, 1] / p_weights[j]
-                            nz = p_moves[j, 2] / p_weights[j]
-                            vx = p_vel[j, 0] + nx
-                            vy = p_vel[j, 1] + ny
-                            vz = p_vel[j, 2] + nz
-                        if (nx*vx + ny*vy + nz*vz) < 0.0:
-                            # reversed direction slow down
-                            vx = vx * 0.9
-                            vy = vy * 0.9
-                            vz = vz * 0.9
-                        p_pos[j, 0] += nx
-                        p_pos[j, 1] += ny
-                        p_pos[j, 2] += nz
-                        p_sum = Vector3d(nx, ny, nz)
-                        if (p_sum.length() == 0.0):
-                            vx = 0.0
-                            vy = 0.0
-                            vz = 0.0
-                            p_vel[j, 0] = vx
-                            p_vel[j, 1] = vy
-                            p_vel[j, 2] = vz
-                    v_sum = 0.0
-                    for j in prange(self.n_particles):
-                        v_sum += p_vel[j, 0] * p_vel[j, 0] + \
-                                 p_vel[j, 1] * p_vel[j, 1] + \
-                                 p_vel[j, 2] * p_vel[j, 2]
-                    v_sum /= self.n_particles
-                    if v_sum < ke:
-                        flag = True
-                    # reset moves and weights
-                    p_weights[:] = 0.0
-                    p_moves[:, :] = 0.0
-            else:
-                with nogil:
+                else:
                     for j in range(self.n_goals):
                         # Can casting check for safety be moved to ref goal loading?
                         (<Goal?>self.goals[j]).calculate(p_pos)
                     for j in range(self.n_goals):
                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
                 # move the particles
-                    for j in range(self.n_particles):
-                        # wrap this as a function? identical to prange version...
-                        nx = 0.0
-                        ny = 0.0
-                        nz = 0.0
-                        if p_weights[j] != 0.0:
-                            nx = p_moves[j, 0] / p_weights[j]
-                            ny = p_moves[j, 1] / p_weights[j]
-                            nz = p_moves[j, 2] / p_weights[j]
-                            vx = p_vel[j, 0] + nx
-                            vy = p_vel[j, 1] + ny
-                            vz = p_vel[j, 2] + nz
-                        if (nx*vx + ny*vy + nz*vz) < 0.0:
-                            # reverseed direction slowdown
-                            vx = vx * 0.9
-                            vy = vy * 0.9
-                            vz = vz * 0.9
-                        p_pos[j, 0] += nx
-                        p_pos[j, 1] += ny
-                        p_pos[j, 2] += nz
-                        p_sum = Vector3d(nx, ny, nz)
-                        if (p_sum.length() <= 1e-10):
-                            vx = 0.0
-                            vy = 0.0
-                            vz = 0.0
-                        p_vel[j, 0] = vx
-                        p_vel[j, 1] = vy
-                        p_vel[j, 2] = vz
-                    v_sum = 0.0
-                    for j in range(self.n_particles):
-                        v_sum += p_vel[j, 0] * p_vel[j, 0] + \
-                                 p_vel[j, 1] * p_vel[j, 1] + \
-                                 p_vel[j, 2] * p_vel[j, 2]
-                    v_sum /= self.n_particles
-                    if v_sum < ke:
-                        flag = True
+                for j in range(self.n_particles):
+                    self.move_particle(j, p_moves, p_weights, p_pos, p_vel)
+                v_sum = 0.0
+                for j in range(self.n_particles):
+                    v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+                             p_vel[j, 1] * p_vel[j, 1] + \
+                             p_vel[j, 2] * p_vel[j, 2]
+                v_sum = v_sum / self.n_particles
+                if v_sum < ke:
+                    flag = True
                     # reset moves and weights
-                    numiter += 1
-                    p_weights[:] = 0.0
-                    p_moves[:, :] = 0.0
-
-
+                self.num_iter+= 1
+                p_weights[:] = 0.0
+                p_moves[:, :] = 0.0
 
 
 

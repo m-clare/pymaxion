@@ -876,17 +876,17 @@ static const char *__pyx_f[] = {
   "pymaxion/goals/anchor.pxd",
   "pymaxion/particle.pxd",
 };
+/* ForceInitThreads.proto */
+#ifndef __PYX_FORCE_INIT_THREADS
+  #define __PYX_FORCE_INIT_THREADS 0
+#endif
+
 /* NoFastGil.proto */
 #define __Pyx_PyGILState_Ensure PyGILState_Ensure
 #define __Pyx_PyGILState_Release PyGILState_Release
 #define __Pyx_FastGIL_Remember()
 #define __Pyx_FastGIL_Forget()
 #define __Pyx_FastGilFuncInit()
-
-/* ForceInitThreads.proto */
-#ifndef __PYX_FORCE_INIT_THREADS
-  #define __PYX_FORCE_INIT_THREADS 0
-#endif
 
 /* MemviewSliceStruct.proto */
 struct __pyx_memoryview_obj;
@@ -1245,8 +1245,8 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 struct __pyx_opt_args_8pymaxion_15particle_system_14ParticleSystem_solve;
 
-/* "pymaxion/particle_system.pyx":73
- *             self.particle_velocities[i,:] = particle.velocity
+/* "pymaxion/particle_system.pyx":108
+ *         p_vel[j, 2] = vz
  * 
  *     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):             # <<<<<<<<<<<<<<
  *         cdef int i
@@ -1313,14 +1313,15 @@ struct __pyx_obj_8pymaxion_8particle_Particle {
  * from pymaxion.geometry.Vector3d cimport Vector3d
  * 
  * cdef class ParticleSystem(object):             # <<<<<<<<<<<<<<
- *     cdef int n_goals
- *     cdef int n_particles
+ *     cdef public int n_goals
+ *     cdef public int n_particles
  */
 struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem {
   PyObject_HEAD
   struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem *__pyx_vtab;
   int n_goals;
   int n_particles;
+  int num_iter;
   PyObject **goals;
   PyObject **particles;
   PyObject *ref_goals;
@@ -1457,14 +1458,15 @@ static struct __pyx_vtabstruct_8pymaxion_8particle_Particle *__pyx_vtabptr_8pyma
  * from pymaxion.geometry.Vector3d cimport Vector3d
  * 
  * cdef class ParticleSystem(object):             # <<<<<<<<<<<<<<
- *     cdef int n_goals
- *     cdef int n_particles
+ *     cdef public int n_goals
+ *     cdef public int n_particles
  */
 
 struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem {
   PyObject *(*add_particle_to_system)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, struct __pyx_obj_8pymaxion_8particle_Particle *, int __pyx_skip_dispatch);
   PyObject *(*add_goal_to_system)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, struct __pyx_obj_8pymaxion_5goals_4goal_Goal *, int __pyx_skip_dispatch);
   PyObject *(*initialize_system)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int __pyx_skip_dispatch);
+  void (*move_particle)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice);
   PyObject *(*solve)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int __pyx_skip_dispatch, struct __pyx_opt_args_8pymaxion_15particle_system_14ParticleSystem_solve *__pyx_optional_args);
 };
 static struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem *__pyx_vtabptr_8pymaxion_15particle_system_ParticleSystem;
@@ -2493,6 +2495,7 @@ static int __Pyx_InitStrings(__Pyx_StringTabEntry *t);
 static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_particle_to_system(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, struct __pyx_obj_8pymaxion_8particle_Particle *__pyx_v_particle, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_to_system(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, struct __pyx_obj_8pymaxion_5goals_4goal_Goal *__pyx_v_goal, int __pyx_skip_dispatch); /* proto*/
 static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize_system(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, int __pyx_skip_dispatch); /* proto*/
+static void __pyx_f_8pymaxion_15particle_system_14ParticleSystem_move_particle(CYTHON_UNUSED struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, int __pyx_v_j, __Pyx_memviewslice __pyx_v_p_moves, __Pyx_memviewslice __pyx_v_p_weights, __Pyx_memviewslice __pyx_v_p_pos, __Pyx_memviewslice __pyx_v_p_vel); /* proto*/
 static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, int __pyx_skip_dispatch, struct __pyx_opt_args_8pymaxion_15particle_system_14ParticleSystem_solve *__pyx_optional_args); /* proto*/
 static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self); /* proto*/
 static char *__pyx_memoryview_get_item_pointer(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index); /* proto*/
@@ -2890,6 +2893,12 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_6add_part
 static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8add_goal_to_system(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, struct __pyx_obj_8pymaxion_5goals_4goal_Goal *__pyx_v_goal); /* proto */
 static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_10initialize_system(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_12solve(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, double __pyx_v_ke, int __pyx_v_max_iter, int __pyx_v_parallel); /* proto */
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
 static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value); /* proto */
 static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_4__del__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self); /* proto */
@@ -2993,7 +3002,7 @@ static PyObject *__pyx_tuple__29;
 static PyObject *__pyx_codeobj__23;
 /* Late includes */
 
-/* "pymaxion/particle_system.pyx":33
+/* "pymaxion/particle_system.pyx":34
  *     cdef public ndarray particle_velocities
  * 
  *     def __cinit__(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -3025,9 +3034,9 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem___cinit__(struc
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__cinit__", 0);
-  __Pyx_TraceCall("__cinit__", __pyx_f[0], 33, 0, __PYX_ERR(0, 33, __pyx_L1_error));
+  __Pyx_TraceCall("__cinit__", __pyx_f[0], 34, 0, __PYX_ERR(0, 34, __pyx_L1_error));
 
-  /* "pymaxion/particle_system.pyx":34
+  /* "pymaxion/particle_system.pyx":35
  * 
  *     def __cinit__(ParticleSystem self):
  *         self.goals = NULL             # <<<<<<<<<<<<<<
@@ -3036,7 +3045,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem___cinit__(struc
  */
   __pyx_v_self->goals = NULL;
 
-  /* "pymaxion/particle_system.pyx":35
+  /* "pymaxion/particle_system.pyx":36
  *     def __cinit__(ParticleSystem self):
  *         self.goals = NULL
  *         self.particles = NULL             # <<<<<<<<<<<<<<
@@ -3045,25 +3054,34 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem___cinit__(struc
  */
   __pyx_v_self->particles = NULL;
 
-  /* "pymaxion/particle_system.pyx":36
+  /* "pymaxion/particle_system.pyx":37
  *         self.goals = NULL
  *         self.particles = NULL
  *         self.n_goals = 0             # <<<<<<<<<<<<<<
  *         self.n_particles = 0
- * 
+ *         self.num_iter = 0
  */
   __pyx_v_self->n_goals = 0;
 
-  /* "pymaxion/particle_system.pyx":37
+  /* "pymaxion/particle_system.pyx":38
  *         self.particles = NULL
  *         self.n_goals = 0
  *         self.n_particles = 0             # <<<<<<<<<<<<<<
+ *         self.num_iter = 0
  * 
- *     def __init__(ParticleSystem self):
  */
   __pyx_v_self->n_particles = 0;
 
-  /* "pymaxion/particle_system.pyx":33
+  /* "pymaxion/particle_system.pyx":39
+ *         self.n_goals = 0
+ *         self.n_particles = 0
+ *         self.num_iter = 0             # <<<<<<<<<<<<<<
+ * 
+ *     def __init__(ParticleSystem self):
+ */
+  __pyx_v_self->num_iter = 0;
+
+  /* "pymaxion/particle_system.pyx":34
  *     cdef public ndarray particle_velocities
  * 
  *     def __cinit__(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -3083,8 +3101,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem___cinit__(struc
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":39
- *         self.n_particles = 0
+/* "pymaxion/particle_system.pyx":41
+ *         self.num_iter = 0
  * 
  *     def __init__(ParticleSystem self):             # <<<<<<<<<<<<<<
  *         self.ref_goals = []
@@ -3116,16 +3134,16 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_2__init__(struc
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__init__", 0);
-  __Pyx_TraceCall("__init__", __pyx_f[0], 39, 0, __PYX_ERR(0, 39, __pyx_L1_error));
+  __Pyx_TraceCall("__init__", __pyx_f[0], 41, 0, __PYX_ERR(0, 41, __pyx_L1_error));
 
-  /* "pymaxion/particle_system.pyx":40
+  /* "pymaxion/particle_system.pyx":42
  * 
  *     def __init__(ParticleSystem self):
  *         self.ref_goals = []             # <<<<<<<<<<<<<<
  *         self.ref_particles = []
  * 
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 42, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->ref_goals);
@@ -3133,14 +3151,14 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_2__init__(struc
   __pyx_v_self->ref_goals = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pymaxion/particle_system.pyx":41
+  /* "pymaxion/particle_system.pyx":43
  *     def __init__(ParticleSystem self):
  *         self.ref_goals = []
  *         self.ref_particles = []             # <<<<<<<<<<<<<<
  * 
  *     def __dealloc__(ParticleSystem self):
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 41, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
   __Pyx_GOTREF(__pyx_v_self->ref_particles);
@@ -3148,8 +3166,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_2__init__(struc
   __pyx_v_self->ref_particles = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pymaxion/particle_system.pyx":39
- *         self.n_particles = 0
+  /* "pymaxion/particle_system.pyx":41
+ *         self.num_iter = 0
  * 
  *     def __init__(ParticleSystem self):             # <<<<<<<<<<<<<<
  *         self.ref_goals = []
@@ -3169,7 +3187,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_2__init__(struc
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":43
+/* "pymaxion/particle_system.pyx":45
  *         self.ref_particles = []
  * 
  *     def __dealloc__(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -3196,9 +3214,9 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__dealloc__", 0);
-  __Pyx_TraceCall("__dealloc__", __pyx_f[0], 43, 0, __PYX_ERR(0, 43, __pyx_L1_error));
+  __Pyx_TraceCall("__dealloc__", __pyx_f[0], 45, 0, __PYX_ERR(0, 45, __pyx_L1_error));
 
-  /* "pymaxion/particle_system.pyx":44
+  /* "pymaxion/particle_system.pyx":46
  * 
  *     def __dealloc__(ParticleSystem self):
  *         if self.goals != NULL:             # <<<<<<<<<<<<<<
@@ -3208,7 +3226,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
   __pyx_t_1 = ((__pyx_v_self->goals != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "pymaxion/particle_system.pyx":45
+    /* "pymaxion/particle_system.pyx":47
  *     def __dealloc__(ParticleSystem self):
  *         if self.goals != NULL:
  *             free(self.goals)             # <<<<<<<<<<<<<<
@@ -3217,7 +3235,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
  */
     free(__pyx_v_self->goals);
 
-    /* "pymaxion/particle_system.pyx":44
+    /* "pymaxion/particle_system.pyx":46
  * 
  *     def __dealloc__(ParticleSystem self):
  *         if self.goals != NULL:             # <<<<<<<<<<<<<<
@@ -3226,7 +3244,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
  */
   }
 
-  /* "pymaxion/particle_system.pyx":46
+  /* "pymaxion/particle_system.pyx":48
  *         if self.goals != NULL:
  *             free(self.goals)
  *         if self.particles != NULL:             # <<<<<<<<<<<<<<
@@ -3236,7 +3254,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
   __pyx_t_1 = ((__pyx_v_self->particles != NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "pymaxion/particle_system.pyx":47
+    /* "pymaxion/particle_system.pyx":49
  *             free(self.goals)
  *         if self.particles != NULL:
  *             free(self.particles)             # <<<<<<<<<<<<<<
@@ -3245,7 +3263,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
  */
     free(__pyx_v_self->particles);
 
-    /* "pymaxion/particle_system.pyx":46
+    /* "pymaxion/particle_system.pyx":48
  *         if self.goals != NULL:
  *             free(self.goals)
  *         if self.particles != NULL:             # <<<<<<<<<<<<<<
@@ -3254,7 +3272,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
  */
   }
 
-  /* "pymaxion/particle_system.pyx":43
+  /* "pymaxion/particle_system.pyx":45
  *         self.ref_particles = []
  * 
  *     def __dealloc__(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -3271,7 +3289,7 @@ static void __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_4__dealloc__(s
   __Pyx_RefNannyFinishContext();
 }
 
-/* "pymaxion/particle_system.pyx":49
+/* "pymaxion/particle_system.pyx":51
  *             free(self.particles)
  * 
  *     cpdef add_particle_to_system(ParticleSystem self, Particle particle):             # <<<<<<<<<<<<<<
@@ -3294,7 +3312,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add_particle_to_system", 0);
-  __Pyx_TraceCall("add_particle_to_system", __pyx_f[0], 49, 0, __PYX_ERR(0, 49, __pyx_L1_error));
+  __Pyx_TraceCall("add_particle_to_system", __pyx_f[0], 51, 0, __PYX_ERR(0, 51, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -3304,7 +3322,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_particle_to_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_particle_to_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7add_particle_to_system)) {
         __Pyx_XDECREF(__pyx_r);
@@ -3321,7 +3339,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_particle)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_particle));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 49, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 51, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -3342,7 +3360,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
     #endif
   }
 
-  /* "pymaxion/particle_system.pyx":50
+  /* "pymaxion/particle_system.pyx":52
  * 
  *     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
  *         particle.system_index = self.n_particles             # <<<<<<<<<<<<<<
@@ -3352,7 +3370,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
   __pyx_t_5 = __pyx_v_self->n_particles;
   __pyx_v_particle->system_index = __pyx_t_5;
 
-  /* "pymaxion/particle_system.pyx":51
+  /* "pymaxion/particle_system.pyx":53
  *     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
  *         particle.system_index = self.n_particles
  *         self.ref_particles.append(particle)             # <<<<<<<<<<<<<<
@@ -3361,11 +3379,11 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
  */
   if (unlikely(__pyx_v_self->ref_particles == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
-    __PYX_ERR(0, 51, __pyx_L1_error)
+    __PYX_ERR(0, 53, __pyx_L1_error)
   }
-  __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_self->ref_particles, ((PyObject *)__pyx_v_particle)); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 51, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyList_Append(__pyx_v_self->ref_particles, ((PyObject *)__pyx_v_particle)); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(0, 53, __pyx_L1_error)
 
-  /* "pymaxion/particle_system.pyx":52
+  /* "pymaxion/particle_system.pyx":54
  *         particle.system_index = self.n_particles
  *         self.ref_particles.append(particle)
  *         self.n_particles += 1             # <<<<<<<<<<<<<<
@@ -3374,7 +3392,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_partic
  */
   __pyx_v_self->n_particles = (__pyx_v_self->n_particles + 1);
 
-  /* "pymaxion/particle_system.pyx":49
+  /* "pymaxion/particle_system.pyx":51
  *             free(self.particles)
  * 
  *     cpdef add_particle_to_system(ParticleSystem self, Particle particle):             # <<<<<<<<<<<<<<
@@ -3408,7 +3426,7 @@ static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7add_part
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_particle_to_system (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_particle), __pyx_ptype_8pymaxion_8particle_Particle, 1, "particle", 0))) __PYX_ERR(0, 49, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_particle), __pyx_ptype_8pymaxion_8particle_Particle, 1, "particle", 0))) __PYX_ERR(0, 51, __pyx_L1_error)
   __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_6add_particle_to_system(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self), ((struct __pyx_obj_8pymaxion_8particle_Particle *)__pyx_v_particle));
 
   /* function exit code */
@@ -3429,9 +3447,9 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_6add_part
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add_particle_to_system", 0);
-  __Pyx_TraceCall("add_particle_to_system (wrapper)", __pyx_f[0], 49, 0, __PYX_ERR(0, 49, __pyx_L1_error));
+  __Pyx_TraceCall("add_particle_to_system (wrapper)", __pyx_f[0], 51, 0, __PYX_ERR(0, 51, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_particle_to_system(__pyx_v_self, __pyx_v_particle, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_particle_to_system(__pyx_v_self, __pyx_v_particle, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3449,7 +3467,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_6add_part
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":54
+/* "pymaxion/particle_system.pyx":56
  *         self.n_particles += 1
  * 
  *     cpdef add_goal_to_system(ParticleSystem self, Goal goal):             # <<<<<<<<<<<<<<
@@ -3471,7 +3489,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add_goal_to_system", 0);
-  __Pyx_TraceCall("add_goal_to_system", __pyx_f[0], 54, 0, __PYX_ERR(0, 54, __pyx_L1_error));
+  __Pyx_TraceCall("add_goal_to_system", __pyx_f[0], 56, 0, __PYX_ERR(0, 56, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -3481,7 +3499,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_goal_to_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_add_goal_to_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_9add_goal_to_system)) {
         __Pyx_XDECREF(__pyx_r);
@@ -3498,7 +3516,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_4, ((PyObject *)__pyx_v_goal)) : __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_goal));
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 56, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -3519,7 +3537,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
     #endif
   }
 
-  /* "pymaxion/particle_system.pyx":55
+  /* "pymaxion/particle_system.pyx":57
  * 
  *     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
  *         self.ref_goals.append(goal)             # <<<<<<<<<<<<<<
@@ -3528,11 +3546,11 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
  */
   if (unlikely(__pyx_v_self->ref_goals == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "append");
-    __PYX_ERR(0, 55, __pyx_L1_error)
+    __PYX_ERR(0, 57, __pyx_L1_error)
   }
-  __pyx_t_5 = __Pyx_PyList_Append(__pyx_v_self->ref_goals, ((PyObject *)__pyx_v_goal)); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 55, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyList_Append(__pyx_v_self->ref_goals, ((PyObject *)__pyx_v_goal)); if (unlikely(__pyx_t_5 == ((int)-1))) __PYX_ERR(0, 57, __pyx_L1_error)
 
-  /* "pymaxion/particle_system.pyx":56
+  /* "pymaxion/particle_system.pyx":58
  *     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
  *         self.ref_goals.append(goal)
  *         self.n_goals += 1             # <<<<<<<<<<<<<<
@@ -3541,7 +3559,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_t
  */
   __pyx_v_self->n_goals = (__pyx_v_self->n_goals + 1);
 
-  /* "pymaxion/particle_system.pyx":54
+  /* "pymaxion/particle_system.pyx":56
  *         self.n_particles += 1
  * 
  *     cpdef add_goal_to_system(ParticleSystem self, Goal goal):             # <<<<<<<<<<<<<<
@@ -3575,7 +3593,7 @@ static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_9add_goal
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("add_goal_to_system (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_goal), __pyx_ptype_8pymaxion_5goals_4goal_Goal, 1, "goal", 0))) __PYX_ERR(0, 54, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_goal), __pyx_ptype_8pymaxion_5goals_4goal_Goal, 1, "goal", 0))) __PYX_ERR(0, 56, __pyx_L1_error)
   __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8add_goal_to_system(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self), ((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)__pyx_v_goal));
 
   /* function exit code */
@@ -3596,9 +3614,9 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8add_goal
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("add_goal_to_system", 0);
-  __Pyx_TraceCall("add_goal_to_system (wrapper)", __pyx_f[0], 54, 0, __PYX_ERR(0, 54, __pyx_L1_error));
+  __Pyx_TraceCall("add_goal_to_system (wrapper)", __pyx_f[0], 56, 0, __PYX_ERR(0, 56, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_to_system(__pyx_v_self, __pyx_v_goal, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_to_system(__pyx_v_self, __pyx_v_goal, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 56, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -3616,7 +3634,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8add_goal
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":58
+/* "pymaxion/particle_system.pyx":60
  *         self.n_goals += 1
  * 
  *     cpdef initialize_system(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -3643,7 +3661,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("initialize_system", 0);
-  __Pyx_TraceCall("initialize_system", __pyx_f[0], 58, 0, __PYX_ERR(0, 58, __pyx_L1_error));
+  __Pyx_TraceCall("initialize_system", __pyx_f[0], 60, 0, __PYX_ERR(0, 60, __pyx_L1_error));
   /* Check if called by wrapper */
   if (unlikely(__pyx_skip_dispatch)) ;
   /* Check if overridden in Python */
@@ -3653,7 +3671,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_initialize_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_initialize_system); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11initialize_system)) {
         __Pyx_XDECREF(__pyx_r);
@@ -3670,7 +3688,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
         }
         __pyx_t_2 = (__pyx_t_4) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
-        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
+        if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
         __pyx_r = __pyx_t_2;
@@ -3691,21 +3709,21 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
     #endif
   }
 
-  /* "pymaxion/particle_system.pyx":60
+  /* "pymaxion/particle_system.pyx":62
  *     cpdef initialize_system(ParticleSystem self):
  *         cdef int i
  *         self.particle_positions   = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_zeros); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -3713,63 +3731,63 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
   __Pyx_GIVEREF(__pyx_int_3);
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_int_3);
   __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "pymaxion/particle_system.pyx":61
+  /* "pymaxion/particle_system.pyx":63
  *         cdef int i
  *         self.particle_positions   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)             # <<<<<<<<<<<<<<
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  */
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_double); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 61, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_double); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 61, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_5) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-  /* "pymaxion/particle_system.pyx":60
+  /* "pymaxion/particle_system.pyx":62
  *     cpdef initialize_system(ParticleSystem self):
  *         cdef int i
  *         self.particle_positions   = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  */
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 60, __pyx_L1_error)
+  if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_5);
   __Pyx_GOTREF(__pyx_v_self->particle_positions);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->particle_positions));
   __pyx_v_self->particle_positions = ((PyArrayObject *)__pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pymaxion/particle_system.pyx":62
+  /* "pymaxion/particle_system.pyx":64
  *         self.particle_positions   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_5);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_5);
@@ -3777,63 +3795,63 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
   __Pyx_GIVEREF(__pyx_int_3);
   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_int_3);
   __pyx_t_5 = 0;
-  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "pymaxion/particle_system.pyx":63
+  /* "pymaxion/particle_system.pyx":65
  *                                             dtype=np.double)
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)             # <<<<<<<<<<<<<<
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  */
-  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_double); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_double); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 63, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_dtype, __pyx_t_4) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "pymaxion/particle_system.pyx":62
+  /* "pymaxion/particle_system.pyx":64
  *         self.particle_positions   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  */
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 62, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_4);
   __Pyx_GOTREF(__pyx_v_self->particle_velocities);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->particle_velocities));
   __pyx_v_self->particle_velocities = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "pymaxion/particle_system.pyx":64
+  /* "pymaxion/particle_system.pyx":66
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_sum_weights = np.zeros((self.n_particles),
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_zeros); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_4);
   PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4);
@@ -3841,105 +3859,105 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
   __Pyx_GIVEREF(__pyx_int_3);
   PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_int_3);
   __pyx_t_4 = 0;
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_5);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5);
   __pyx_t_5 = 0;
 
-  /* "pymaxion/particle_system.pyx":65
+  /* "pymaxion/particle_system.pyx":67
  *                                             dtype=np.double)
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)             # <<<<<<<<<<<<<<
  *         self.particle_sum_weights = np.zeros((self.n_particles),
  *                                              dtype=np.double)
  */
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_double); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 65, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_double); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_2) < 0) __PYX_ERR(0, 65, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_2) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "pymaxion/particle_system.pyx":64
+  /* "pymaxion/particle_system.pyx":66
  *         self.particle_velocities  = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),             # <<<<<<<<<<<<<<
  *                                             dtype=np.double)
  *         self.particle_sum_weights = np.zeros((self.n_particles),
  */
-  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 64, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 64, __pyx_L1_error)
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 66, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_2);
   __Pyx_GOTREF(__pyx_v_self->particle_sum_moves);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->particle_sum_moves));
   __pyx_v_self->particle_sum_moves = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pymaxion/particle_system.pyx":66
+  /* "pymaxion/particle_system.pyx":68
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_sum_weights = np.zeros((self.n_particles),             # <<<<<<<<<<<<<<
  *                                              dtype=np.double)
  *         for i in range(self.n_particles):
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_zeros); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_2);
   PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "pymaxion/particle_system.pyx":67
+  /* "pymaxion/particle_system.pyx":69
  *                                             dtype=np.double)
  *         self.particle_sum_weights = np.zeros((self.n_particles),
  *                                              dtype=np.double)             # <<<<<<<<<<<<<<
  *         for i in range(self.n_particles):
  *             particle = self.ref_particles[i]
  */
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_double); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 67, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_double); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 67, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 69, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "pymaxion/particle_system.pyx":66
+  /* "pymaxion/particle_system.pyx":68
  *         self.particle_sum_moves   = np.zeros((self.n_particles, 3),
  *                                             dtype=np.double)
  *         self.particle_sum_weights = np.zeros((self.n_particles),             # <<<<<<<<<<<<<<
  *                                              dtype=np.double)
  *         for i in range(self.n_particles):
  */
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_4, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 66, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 68, __pyx_L1_error)
   __Pyx_GIVEREF(__pyx_t_3);
   __Pyx_GOTREF(__pyx_v_self->particle_sum_weights);
   __Pyx_DECREF(((PyObject *)__pyx_v_self->particle_sum_weights));
   __pyx_v_self->particle_sum_weights = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "pymaxion/particle_system.pyx":68
+  /* "pymaxion/particle_system.pyx":70
  *         self.particle_sum_weights = np.zeros((self.n_particles),
  *                                              dtype=np.double)
  *         for i in range(self.n_particles):             # <<<<<<<<<<<<<<
@@ -3951,7 +3969,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "pymaxion/particle_system.pyx":69
+    /* "pymaxion/particle_system.pyx":71
  *                                              dtype=np.double)
  *         for i in range(self.n_particles):
  *             particle = self.ref_particles[i]             # <<<<<<<<<<<<<<
@@ -3960,25 +3978,25 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
  */
     if (unlikely(__pyx_v_self->ref_particles == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 69, __pyx_L1_error)
+      __PYX_ERR(0, 71, __pyx_L1_error)
     }
     __pyx_t_3 = PyList_GET_ITEM(__pyx_v_self->ref_particles, __pyx_v_i);
     __Pyx_INCREF(__pyx_t_3);
     __Pyx_XDECREF_SET(__pyx_v_particle, __pyx_t_3);
     __pyx_t_3 = 0;
 
-    /* "pymaxion/particle_system.pyx":70
+    /* "pymaxion/particle_system.pyx":72
  *         for i in range(self.n_particles):
  *             particle = self.ref_particles[i]
  *             self.particle_positions[i, :] = particle.position             # <<<<<<<<<<<<<<
  *             self.particle_velocities[i,:] = particle.velocity
  * 
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_particle, __pyx_n_s_position); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_particle, __pyx_n_s_position); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2);
@@ -3986,22 +4004,22 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
     __Pyx_GIVEREF(__pyx_slice_);
     PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_slice_);
     __pyx_t_2 = 0;
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self->particle_positions), __pyx_t_4, __pyx_t_3) < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self->particle_positions), __pyx_t_4, __pyx_t_3) < 0)) __PYX_ERR(0, 72, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-    /* "pymaxion/particle_system.pyx":71
+    /* "pymaxion/particle_system.pyx":73
  *             particle = self.ref_particles[i]
  *             self.particle_positions[i, :] = particle.position
  *             self.particle_velocities[i,:] = particle.velocity             # <<<<<<<<<<<<<<
  * 
- *     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
+ *     cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_particle, __pyx_n_s_velocity); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_particle, __pyx_n_s_velocity); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 0, __pyx_t_4);
@@ -4009,12 +4027,12 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize
     __Pyx_GIVEREF(__pyx_slice_);
     PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_slice_);
     __pyx_t_4 = 0;
-    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self->particle_velocities), __pyx_t_2, __pyx_t_3) < 0)) __PYX_ERR(0, 71, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(((PyObject *)__pyx_v_self->particle_velocities), __pyx_t_2, __pyx_t_3) < 0)) __PYX_ERR(0, 73, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
 
-  /* "pymaxion/particle_system.pyx":58
+  /* "pymaxion/particle_system.pyx":60
  *         self.n_goals += 1
  * 
  *     cpdef initialize_system(ParticleSystem self):             # <<<<<<<<<<<<<<
@@ -4063,9 +4081,9 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_10initial
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("initialize_system", 0);
-  __Pyx_TraceCall("initialize_system (wrapper)", __pyx_f[0], 58, 0, __PYX_ERR(0, 58, __pyx_L1_error));
+  __Pyx_TraceCall("initialize_system (wrapper)", __pyx_f[0], 60, 0, __PYX_ERR(0, 60, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize_system(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_1 = __pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize_system(__pyx_v_self, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -4083,8 +4101,346 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_10initial
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":73
+/* "pymaxion/particle_system.pyx":75
  *             self.particle_velocities[i,:] = particle.velocity
+ * 
+ *     cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,             # <<<<<<<<<<<<<<
+ *                             double[:] p_weights, double[:, :] p_pos,
+ *                             double[:, :] p_vel) nogil:
+ */
+
+static void __pyx_f_8pymaxion_15particle_system_14ParticleSystem_move_particle(CYTHON_UNUSED struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, int __pyx_v_j, __Pyx_memviewslice __pyx_v_p_moves, __Pyx_memviewslice __pyx_v_p_weights, __Pyx_memviewslice __pyx_v_p_pos, __Pyx_memviewslice __pyx_v_p_vel) {
+  double __pyx_v_nx;
+  double __pyx_v_ny;
+  double __pyx_v_nz;
+  double __pyx_v_vx;
+  double __pyx_v_vy;
+  double __pyx_v_vz;
+  geometry::Vector3d __pyx_v_p_sum;
+  __Pyx_TraceDeclarations
+  Py_ssize_t __pyx_t_1;
+  int __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  geometry::Vector3d __pyx_t_5;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_TraceCall("move_particle", __pyx_f[0], 75, 1, __PYX_ERR(0, 75, __pyx_L1_error));
+
+  /* "pymaxion/particle_system.pyx":81
+ *         cdef double vx, vy, vz
+ *         cdef Vector3d p_sum
+ *         nx = 0.0             # <<<<<<<<<<<<<<
+ *         ny = 0.0
+ *         nz = 0.0
+ */
+  __pyx_v_nx = 0.0;
+
+  /* "pymaxion/particle_system.pyx":82
+ *         cdef Vector3d p_sum
+ *         nx = 0.0
+ *         ny = 0.0             # <<<<<<<<<<<<<<
+ *         nz = 0.0
+ *         if p_weights[j] != 0.0:
+ */
+  __pyx_v_ny = 0.0;
+
+  /* "pymaxion/particle_system.pyx":83
+ *         nx = 0.0
+ *         ny = 0.0
+ *         nz = 0.0             # <<<<<<<<<<<<<<
+ *         if p_weights[j] != 0.0:
+ *             nx = p_moves[j, 0] / p_weights[j]
+ */
+  __pyx_v_nz = 0.0;
+
+  /* "pymaxion/particle_system.pyx":84
+ *         ny = 0.0
+ *         nz = 0.0
+ *         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
+ *             nx = p_moves[j, 0] / p_weights[j]
+ *             ny = p_moves[j, 1] / p_weights[j]
+ */
+  __pyx_t_1 = __pyx_v_j;
+  __pyx_t_2 = (((*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_1 * __pyx_v_p_weights.strides[0]) ))) != 0.0) != 0);
+  if (__pyx_t_2) {
+
+    /* "pymaxion/particle_system.pyx":85
+ *         nz = 0.0
+ *         if p_weights[j] != 0.0:
+ *             nx = p_moves[j, 0] / p_weights[j]             # <<<<<<<<<<<<<<
+ *             ny = p_moves[j, 1] / p_weights[j]
+ *             nz = p_moves[j, 2] / p_weights[j]
+ */
+    __pyx_t_1 = __pyx_v_j;
+    __pyx_t_3 = 0;
+    __pyx_t_4 = __pyx_v_j;
+    __pyx_v_nx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_1 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_3 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_4 * __pyx_v_p_weights.strides[0]) ))));
+
+    /* "pymaxion/particle_system.pyx":86
+ *         if p_weights[j] != 0.0:
+ *             nx = p_moves[j, 0] / p_weights[j]
+ *             ny = p_moves[j, 1] / p_weights[j]             # <<<<<<<<<<<<<<
+ *             nz = p_moves[j, 2] / p_weights[j]
+ *         vx = p_vel[j, 0] + nx
+ */
+    __pyx_t_4 = __pyx_v_j;
+    __pyx_t_3 = 1;
+    __pyx_t_1 = __pyx_v_j;
+    __pyx_v_ny = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_4 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_3 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_1 * __pyx_v_p_weights.strides[0]) ))));
+
+    /* "pymaxion/particle_system.pyx":87
+ *             nx = p_moves[j, 0] / p_weights[j]
+ *             ny = p_moves[j, 1] / p_weights[j]
+ *             nz = p_moves[j, 2] / p_weights[j]             # <<<<<<<<<<<<<<
+ *         vx = p_vel[j, 0] + nx
+ *         vy = p_vel[j, 1] + ny
+ */
+    __pyx_t_1 = __pyx_v_j;
+    __pyx_t_3 = 2;
+    __pyx_t_4 = __pyx_v_j;
+    __pyx_v_nz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_1 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_3 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_4 * __pyx_v_p_weights.strides[0]) ))));
+
+    /* "pymaxion/particle_system.pyx":84
+ *         ny = 0.0
+ *         nz = 0.0
+ *         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
+ *             nx = p_moves[j, 0] / p_weights[j]
+ *             ny = p_moves[j, 1] / p_weights[j]
+ */
+  }
+
+  /* "pymaxion/particle_system.pyx":88
+ *             ny = p_moves[j, 1] / p_weights[j]
+ *             nz = p_moves[j, 2] / p_weights[j]
+ *         vx = p_vel[j, 0] + nx             # <<<<<<<<<<<<<<
+ *         vy = p_vel[j, 1] + ny
+ *         vz = p_vel[j, 2] + nz
+ */
+  __pyx_t_4 = __pyx_v_j;
+  __pyx_t_3 = 0;
+  __pyx_v_vx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_4 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_3 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nx);
+
+  /* "pymaxion/particle_system.pyx":89
+ *             nz = p_moves[j, 2] / p_weights[j]
+ *         vx = p_vel[j, 0] + nx
+ *         vy = p_vel[j, 1] + ny             # <<<<<<<<<<<<<<
+ *         vz = p_vel[j, 2] + nz
+ *         if (nx*vx + ny*vy + nz*vz) < 0.0:
+ */
+  __pyx_t_3 = __pyx_v_j;
+  __pyx_t_4 = 1;
+  __pyx_v_vy = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_3 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_4 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_ny);
+
+  /* "pymaxion/particle_system.pyx":90
+ *         vx = p_vel[j, 0] + nx
+ *         vy = p_vel[j, 1] + ny
+ *         vz = p_vel[j, 2] + nz             # <<<<<<<<<<<<<<
+ *         if (nx*vx + ny*vy + nz*vz) < 0.0:
+ *             # reversed direction slowdown
+ */
+  __pyx_t_4 = __pyx_v_j;
+  __pyx_t_3 = 2;
+  __pyx_v_vz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_4 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_3 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nz);
+
+  /* "pymaxion/particle_system.pyx":91
+ *         vy = p_vel[j, 1] + ny
+ *         vz = p_vel[j, 2] + nz
+ *         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
+ *             # reversed direction slowdown
+ *             vx = vx * 0.9
+ */
+  __pyx_t_2 = (((((__pyx_v_nx * __pyx_v_vx) + (__pyx_v_ny * __pyx_v_vy)) + (__pyx_v_nz * __pyx_v_vz)) < 0.0) != 0);
+  if (__pyx_t_2) {
+
+    /* "pymaxion/particle_system.pyx":93
+ *         if (nx*vx + ny*vy + nz*vz) < 0.0:
+ *             # reversed direction slowdown
+ *             vx = vx * 0.9             # <<<<<<<<<<<<<<
+ *             vy = vy * 0.9
+ *             vz = vz * 0.9
+ */
+    __pyx_v_vx = (__pyx_v_vx * 0.9);
+
+    /* "pymaxion/particle_system.pyx":94
+ *             # reversed direction slowdown
+ *             vx = vx * 0.9
+ *             vy = vy * 0.9             # <<<<<<<<<<<<<<
+ *             vz = vz * 0.9
+ *         p_pos[j, 0] += nx
+ */
+    __pyx_v_vy = (__pyx_v_vy * 0.9);
+
+    /* "pymaxion/particle_system.pyx":95
+ *             vx = vx * 0.9
+ *             vy = vy * 0.9
+ *             vz = vz * 0.9             # <<<<<<<<<<<<<<
+ *         p_pos[j, 0] += nx
+ *         p_pos[j, 1] += ny
+ */
+    __pyx_v_vz = (__pyx_v_vz * 0.9);
+
+    /* "pymaxion/particle_system.pyx":91
+ *         vy = p_vel[j, 1] + ny
+ *         vz = p_vel[j, 2] + nz
+ *         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
+ *             # reversed direction slowdown
+ *             vx = vx * 0.9
+ */
+  }
+
+  /* "pymaxion/particle_system.pyx":96
+ *             vy = vy * 0.9
+ *             vz = vz * 0.9
+ *         p_pos[j, 0] += nx             # <<<<<<<<<<<<<<
+ *         p_pos[j, 1] += ny
+ *         p_pos[j, 2] += nz
+ */
+  __pyx_t_3 = __pyx_v_j;
+  __pyx_t_4 = 0;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_3 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_4 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nx;
+
+  /* "pymaxion/particle_system.pyx":97
+ *             vz = vz * 0.9
+ *         p_pos[j, 0] += nx
+ *         p_pos[j, 1] += ny             # <<<<<<<<<<<<<<
+ *         p_pos[j, 2] += nz
+ *         p_sum = Vector3d(nx, ny, nz)
+ */
+  __pyx_t_4 = __pyx_v_j;
+  __pyx_t_3 = 1;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_4 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_3 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_ny;
+
+  /* "pymaxion/particle_system.pyx":98
+ *         p_pos[j, 0] += nx
+ *         p_pos[j, 1] += ny
+ *         p_pos[j, 2] += nz             # <<<<<<<<<<<<<<
+ *         p_sum = Vector3d(nx, ny, nz)
+ *         if (p_sum.length() < 1e-6):
+ */
+  __pyx_t_3 = __pyx_v_j;
+  __pyx_t_4 = 2;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_3 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_4 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nz;
+
+  /* "pymaxion/particle_system.pyx":99
+ *         p_pos[j, 1] += ny
+ *         p_pos[j, 2] += nz
+ *         p_sum = Vector3d(nx, ny, nz)             # <<<<<<<<<<<<<<
+ *         if (p_sum.length() < 1e-6):
+ *             vx = 0.0
+ */
+  try {
+    __pyx_t_5 = geometry::Vector3d(__pyx_v_nx, __pyx_v_ny, __pyx_v_nz);
+  } catch(...) {
+    #ifdef WITH_THREAD
+    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+    #endif
+    __Pyx_CppExn2PyErr();
+    #ifdef WITH_THREAD
+    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+    #endif
+    __PYX_ERR(0, 99, __pyx_L1_error)
+  }
+  __pyx_v_p_sum = __pyx_t_5;
+
+  /* "pymaxion/particle_system.pyx":100
+ *         p_pos[j, 2] += nz
+ *         p_sum = Vector3d(nx, ny, nz)
+ *         if (p_sum.length() < 1e-6):             # <<<<<<<<<<<<<<
+ *             vx = 0.0
+ *             vy = 0.0
+ */
+  __pyx_t_2 = ((__pyx_v_p_sum.length() < 1e-6) != 0);
+  if (__pyx_t_2) {
+
+    /* "pymaxion/particle_system.pyx":101
+ *         p_sum = Vector3d(nx, ny, nz)
+ *         if (p_sum.length() < 1e-6):
+ *             vx = 0.0             # <<<<<<<<<<<<<<
+ *             vy = 0.0
+ *             vz = 0.0
+ */
+    __pyx_v_vx = 0.0;
+
+    /* "pymaxion/particle_system.pyx":102
+ *         if (p_sum.length() < 1e-6):
+ *             vx = 0.0
+ *             vy = 0.0             # <<<<<<<<<<<<<<
+ *             vz = 0.0
+ *         p_vel[j, 0] = vx
+ */
+    __pyx_v_vy = 0.0;
+
+    /* "pymaxion/particle_system.pyx":103
+ *             vx = 0.0
+ *             vy = 0.0
+ *             vz = 0.0             # <<<<<<<<<<<<<<
+ *         p_vel[j, 0] = vx
+ *         p_vel[j, 1] = vy
+ */
+    __pyx_v_vz = 0.0;
+
+    /* "pymaxion/particle_system.pyx":100
+ *         p_pos[j, 2] += nz
+ *         p_sum = Vector3d(nx, ny, nz)
+ *         if (p_sum.length() < 1e-6):             # <<<<<<<<<<<<<<
+ *             vx = 0.0
+ *             vy = 0.0
+ */
+  }
+
+  /* "pymaxion/particle_system.pyx":104
+ *             vy = 0.0
+ *             vz = 0.0
+ *         p_vel[j, 0] = vx             # <<<<<<<<<<<<<<
+ *         p_vel[j, 1] = vy
+ *         p_vel[j, 2] = vz
+ */
+  __pyx_t_4 = __pyx_v_j;
+  __pyx_t_3 = 0;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_4 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_3 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vx;
+
+  /* "pymaxion/particle_system.pyx":105
+ *             vz = 0.0
+ *         p_vel[j, 0] = vx
+ *         p_vel[j, 1] = vy             # <<<<<<<<<<<<<<
+ *         p_vel[j, 2] = vz
+ * 
+ */
+  __pyx_t_3 = __pyx_v_j;
+  __pyx_t_4 = 1;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_3 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_4 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vy;
+
+  /* "pymaxion/particle_system.pyx":106
+ *         p_vel[j, 0] = vx
+ *         p_vel[j, 1] = vy
+ *         p_vel[j, 2] = vz             # <<<<<<<<<<<<<<
+ * 
+ *     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
+ */
+  __pyx_t_4 = __pyx_v_j;
+  __pyx_t_3 = 2;
+  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_4 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_3 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vz;
+
+  /* "pymaxion/particle_system.pyx":75
+ *             self.particle_velocities[i,:] = particle.velocity
+ * 
+ *     cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,             # <<<<<<<<<<<<<<
+ *                             double[:] p_weights, double[:, :] p_pos,
+ *                             double[:, :] p_vel) nogil:
+ */
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_WriteUnraisable("pymaxion.particle_system.ParticleSystem.move_particle", __pyx_clineno, __pyx_lineno, __pyx_filename, 1, 1);
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 1);
+}
+
+/* "pymaxion/particle_system.pyx":108
+ *         p_vel[j, 2] = vz
  * 
  *     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):             # <<<<<<<<<<<<<<
  *         cdef int i
@@ -4098,15 +4454,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
   int __pyx_v_parallel = ((int)0);
   int __pyx_v_i;
   int __pyx_v_j;
-  int __pyx_v_numiter;
   int __pyx_v_flag;
-  double __pyx_v_nx;
-  double __pyx_v_ny;
-  double __pyx_v_nz;
-  double __pyx_v_vx;
-  double __pyx_v_vy;
-  double __pyx_v_vz;
-  geometry::Vector3d __pyx_v_p_sum;
   double __pyx_v_v_sum;
   __Pyx_memviewslice __pyx_v_p_pos = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_p_vel = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -4135,7 +4483,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
   Py_ssize_t __pyx_t_18;
   Py_ssize_t __pyx_t_19;
   Py_ssize_t __pyx_t_20;
-  geometry::Vector3d __pyx_t_21;
+  Py_ssize_t __pyx_t_21;
   Py_ssize_t __pyx_t_22;
   Py_ssize_t __pyx_t_23;
   Py_ssize_t __pyx_t_24;
@@ -4144,12 +4492,11 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
   Py_ssize_t __pyx_t_27;
   Py_ssize_t __pyx_t_28;
   Py_ssize_t __pyx_t_29;
-  Py_ssize_t __pyx_t_30;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("solve", 0);
-  __Pyx_TraceCall("solve", __pyx_f[0], 73, 0, __PYX_ERR(0, 73, __pyx_L1_error));
+  __Pyx_TraceCall("solve", __pyx_f[0], 108, 0, __PYX_ERR(0, 108, __pyx_L1_error));
   if (__pyx_optional_args) {
     if (__pyx_optional_args->__pyx_n > 0) {
       __pyx_v_ke = __pyx_optional_args->ke;
@@ -4170,15 +4517,15 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
     if (unlikely(!__Pyx_object_dict_version_matches(((PyObject *)__pyx_v_self), __pyx_tp_dict_version, __pyx_obj_dict_version))) {
       PY_UINT64_T __pyx_type_dict_guard = __Pyx_get_tp_dict_version(((PyObject *)__pyx_v_self));
       #endif
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_solve); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_self), __pyx_n_s_solve); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       if (!PyCFunction_Check(__pyx_t_1) || (PyCFunction_GET_FUNCTION(__pyx_t_1) != (PyCFunction)(void*)__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_13solve)) {
         __Pyx_XDECREF(__pyx_r);
-        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_ke); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_3 = PyFloat_FromDouble(__pyx_v_ke); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 108, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
-        __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_max_iter); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_max_iter); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 108, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
-        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_parallel); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 73, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_parallel); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 108, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_INCREF(__pyx_t_1);
         __pyx_t_6 = __pyx_t_1; __pyx_t_7 = NULL;
@@ -4196,7 +4543,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_3, __pyx_t_4, __pyx_t_5};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4207,7 +4554,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[4] = {__pyx_t_7, __pyx_t_3, __pyx_t_4, __pyx_t_5};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 3+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -4216,7 +4563,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
         } else
         #endif
         {
-          __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 73, __pyx_L1_error)
+          __pyx_t_9 = PyTuple_New(3+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_9);
           if (__pyx_t_7) {
             __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -4230,7 +4577,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
           __pyx_t_3 = 0;
           __pyx_t_4 = 0;
           __pyx_t_5 = 0;
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 73, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 108, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
         }
@@ -4253,84 +4600,84 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
     #endif
   }
 
-  /* "pymaxion/particle_system.pyx":84
+  /* "pymaxion/particle_system.pyx":115
  * 
  *         # assemble position matrix
  *         self.initialize_system()             # <<<<<<<<<<<<<<
  *         flag = False
- *         numiter = 0
+ *         self.num_iter = 0
  */
-  __pyx_t_1 = ((struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self->__pyx_vtab)->initialize_system(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_1 = ((struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self->__pyx_vtab)->initialize_system(__pyx_v_self, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "pymaxion/particle_system.pyx":85
+  /* "pymaxion/particle_system.pyx":116
  *         # assemble position matrix
  *         self.initialize_system()
  *         flag = False             # <<<<<<<<<<<<<<
- *         numiter = 0
+ *         self.num_iter = 0
  *         # memory view must be created before nogil
  */
   __pyx_v_flag = 0;
 
-  /* "pymaxion/particle_system.pyx":86
+  /* "pymaxion/particle_system.pyx":117
  *         self.initialize_system()
  *         flag = False
- *         numiter = 0             # <<<<<<<<<<<<<<
+ *         self.num_iter = 0             # <<<<<<<<<<<<<<
  *         # memory view must be created before nogil
  *         cdef double [:, :] p_pos = self.particle_positions
  */
-  __pyx_v_numiter = 0;
+  __pyx_v_self->num_iter = 0;
 
-  /* "pymaxion/particle_system.pyx":88
- *         numiter = 0
+  /* "pymaxion/particle_system.pyx":119
+ *         self.num_iter = 0
  *         # memory view must be created before nogil
  *         cdef double [:, :] p_pos = self.particle_positions             # <<<<<<<<<<<<<<
  *         cdef double [:, :] p_vel = self.particle_velocities
  *         cdef double [:, :] p_moves = self.particle_sum_moves
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_positions), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 88, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_positions), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 119, __pyx_L1_error)
   __pyx_v_p_pos = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
-  /* "pymaxion/particle_system.pyx":89
+  /* "pymaxion/particle_system.pyx":120
  *         # memory view must be created before nogil
  *         cdef double [:, :] p_pos = self.particle_positions
  *         cdef double [:, :] p_vel = self.particle_velocities             # <<<<<<<<<<<<<<
  *         cdef double [:, :] p_moves = self.particle_sum_moves
  *         cdef double [:]  p_weights = self.particle_sum_weights
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_velocities), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 89, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_velocities), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 120, __pyx_L1_error)
   __pyx_v_p_vel = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
-  /* "pymaxion/particle_system.pyx":90
+  /* "pymaxion/particle_system.pyx":121
  *         cdef double [:, :] p_pos = self.particle_positions
  *         cdef double [:, :] p_vel = self.particle_velocities
  *         cdef double [:, :] p_moves = self.particle_sum_moves             # <<<<<<<<<<<<<<
  *         cdef double [:]  p_weights = self.particle_sum_weights
  *         # set up C++ only objects for nogil
  */
-  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_sum_moves), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_dsds_double(((PyObject *)__pyx_v_self->particle_sum_moves), PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 121, __pyx_L1_error)
   __pyx_v_p_moves = __pyx_t_10;
   __pyx_t_10.memview = NULL;
   __pyx_t_10.data = NULL;
 
-  /* "pymaxion/particle_system.pyx":91
+  /* "pymaxion/particle_system.pyx":122
  *         cdef double [:, :] p_vel = self.particle_velocities
  *         cdef double [:, :] p_moves = self.particle_sum_moves
  *         cdef double [:]  p_weights = self.particle_sum_weights             # <<<<<<<<<<<<<<
  *         # set up C++ only objects for nogil
  *         self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
  */
-  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_v_self->particle_sum_weights), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_to_MemoryviewSlice_ds_double(((PyObject *)__pyx_v_self->particle_sum_weights), PyBUF_WRITABLE); if (unlikely(!__pyx_t_11.memview)) __PYX_ERR(0, 122, __pyx_L1_error)
   __pyx_v_p_weights = __pyx_t_11;
   __pyx_t_11.memview = NULL;
   __pyx_t_11.data = NULL;
 
-  /* "pymaxion/particle_system.pyx":93
+  /* "pymaxion/particle_system.pyx":124
  *         cdef double [:]  p_weights = self.particle_sum_weights
  *         # set up C++ only objects for nogil
  *         self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(             # <<<<<<<<<<<<<<
@@ -4339,7 +4686,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
  */
   __pyx_v_self->goals = ((PyObject **)malloc((__pyx_v_self->n_goals * (sizeof(PyObject *)))));
 
-  /* "pymaxion/particle_system.pyx":95
+  /* "pymaxion/particle_system.pyx":126
  *         self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
  *                                          cython.pointer(PyObject)))
  *         for i in range(self.n_goals):             # <<<<<<<<<<<<<<
@@ -4351,7 +4698,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymaxion/particle_system.pyx":96
+    /* "pymaxion/particle_system.pyx":127
  *                                          cython.pointer(PyObject)))
  *         for i in range(self.n_goals):
  *             self.goals[i] = <PyObject*>self.ref_goals[i]             # <<<<<<<<<<<<<<
@@ -4360,12 +4707,12 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
  */
     if (unlikely(__pyx_v_self->ref_goals == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 96, __pyx_L1_error)
+      __PYX_ERR(0, 127, __pyx_L1_error)
     }
     (__pyx_v_self->goals[__pyx_v_i]) = ((PyObject *)PyList_GET_ITEM(__pyx_v_self->ref_goals, __pyx_v_i));
   }
 
-  /* "pymaxion/particle_system.pyx":97
+  /* "pymaxion/particle_system.pyx":128
  *         for i in range(self.n_goals):
  *             self.goals[i] = <PyObject*>self.ref_goals[i]
  *         for i in range(max_iter):             # <<<<<<<<<<<<<<
@@ -4377,7 +4724,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
   for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
     __pyx_v_i = __pyx_t_13;
 
-    /* "pymaxion/particle_system.pyx":98
+    /* "pymaxion/particle_system.pyx":129
  *             self.goals[i] = <PyObject*>self.ref_goals[i]
  *         for i in range(max_iter):
  *             if flag == True:             # <<<<<<<<<<<<<<
@@ -4387,16 +4734,16 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
     __pyx_t_14 = ((__pyx_v_flag == 1) != 0);
     if (__pyx_t_14) {
 
-      /* "pymaxion/particle_system.pyx":99
+      /* "pymaxion/particle_system.pyx":130
  *         for i in range(max_iter):
  *             if flag == True:
  *                 break             # <<<<<<<<<<<<<<
  *             # release GIL for parallel constraint solve
- *             if parallel:
+ *             with nogil:
  */
       goto __pyx_L6_break;
 
-      /* "pymaxion/particle_system.pyx":98
+      /* "pymaxion/particle_system.pyx":129
  *             self.goals[i] = <PyObject*>self.ref_goals[i]
  *         for i in range(max_iter):
  *             if flag == True:             # <<<<<<<<<<<<<<
@@ -4405,34 +4752,34 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
  */
     }
 
-    /* "pymaxion/particle_system.pyx":101
+    /* "pymaxion/particle_system.pyx":132
  *                 break
  *             # release GIL for parallel constraint solve
- *             if parallel:             # <<<<<<<<<<<<<<
- *                 with nogil:
+ *             with nogil:             # <<<<<<<<<<<<<<
+ *                 if parallel:
  *                     for j in prange(self.n_goals):
  */
-    __pyx_t_14 = (__pyx_v_parallel != 0);
-    if (__pyx_t_14) {
+    {
+        #ifdef WITH_THREAD
+        PyThreadState *_save;
+        Py_UNBLOCK_THREADS
+        __Pyx_FastGIL_Remember();
+        #endif
+        /*try:*/ {
 
-      /* "pymaxion/particle_system.pyx":102
+          /* "pymaxion/particle_system.pyx":133
  *             # release GIL for parallel constraint solve
- *             if parallel:
- *                 with nogil:             # <<<<<<<<<<<<<<
+ *             with nogil:
+ *                 if parallel:             # <<<<<<<<<<<<<<
  *                     for j in prange(self.n_goals):
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  */
-      {
-          #ifdef WITH_THREAD
-          PyThreadState *_save;
-          Py_UNBLOCK_THREADS
-          __Pyx_FastGIL_Remember();
-          #endif
-          /*try:*/ {
+          __pyx_t_14 = (__pyx_v_parallel != 0);
+          if (__pyx_t_14) {
 
-            /* "pymaxion/particle_system.pyx":103
- *             if parallel:
- *                 with nogil:
+            /* "pymaxion/particle_system.pyx":134
+ *             with nogil:
+ *                 if parallel:
  *                     for j in prange(self.n_goals):             # <<<<<<<<<<<<<<
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  *                     for j in range(self.n_goals):
@@ -4460,8 +4807,8 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
                             {
                                 __pyx_v_j = (int)(0 + 1 * __pyx_t_16);
 
-                                /* "pymaxion/particle_system.pyx":104
- *                 with nogil:
+                                /* "pymaxion/particle_system.pyx":135
+ *                 if parallel:
  *                     for j in prange(self.n_goals):
  *                         (<Goal?>self.goals[j]).calculate(p_pos)             # <<<<<<<<<<<<<<
  *                     for j in range(self.n_goals):
@@ -4480,722 +4827,52 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
                 #define unlikely(x) __builtin_expect(!!(x), 0)
             #endif
 
-            /* "pymaxion/particle_system.pyx":105
+            /* "pymaxion/particle_system.pyx":136
  *                     for j in prange(self.n_goals):
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  *                     for j in range(self.n_goals):             # <<<<<<<<<<<<<<
  *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
- *                 # move the particles
+ *                 else:
  */
             __pyx_t_17 = __pyx_v_self->n_goals;
             __pyx_t_16 = __pyx_t_17;
             for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
               __pyx_v_j = __pyx_t_15;
 
-              /* "pymaxion/particle_system.pyx":106
+              /* "pymaxion/particle_system.pyx":137
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  *                     for j in range(self.n_goals):
  *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)             # <<<<<<<<<<<<<<
- *                 # move the particles
- *                     for j in prange(self.n_particles):
+ *                 else:
+ *                     for j in range(self.n_goals):
  */
               ((struct __pyx_vtabstruct_8pymaxion_5goals_4goal_Goal *)((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j]))->__pyx_vtab)->sum_moves(((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j])), __pyx_v_p_moves, __pyx_v_p_weights);
             }
 
-            /* "pymaxion/particle_system.pyx":108
- *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
- *                 # move the particles
- *                     for j in prange(self.n_particles):             # <<<<<<<<<<<<<<
- *                         nx = 0.0
- *                         ny = 0.0
- */
-            __pyx_t_17 = __pyx_v_self->n_particles;
-            if ((1 == 0)) abort();
-            {
-                int __pyx_parallel_temp0 = ((int)0xbad0bad0);
-                double __pyx_parallel_temp1 = ((double)__PYX_NAN());
-                double __pyx_parallel_temp2 = ((double)__PYX_NAN());
-                double __pyx_parallel_temp3 = ((double)__PYX_NAN());
-                geometry::Vector3d __pyx_parallel_temp4;
-                double __pyx_parallel_temp5 = ((double)__PYX_NAN());
-                double __pyx_parallel_temp6 = ((double)__PYX_NAN());
-                double __pyx_parallel_temp7 = ((double)__PYX_NAN());
-                const char *__pyx_parallel_filename = NULL; int __pyx_parallel_lineno = 0, __pyx_parallel_clineno = 0;
-                PyObject *__pyx_parallel_exc_type = NULL, *__pyx_parallel_exc_value = NULL, *__pyx_parallel_exc_tb = NULL;
-                int __pyx_parallel_why;
-                __pyx_parallel_why = 0;
-                #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                    #undef likely
-                    #undef unlikely
-                    #define likely(x)   (x)
-                    #define unlikely(x) (x)
-                #endif
-                __pyx_t_15 = (__pyx_t_17 - 0 + 1 - 1/abs(1)) / 1;
-                if (__pyx_t_15 > 0)
-                {
-                    #ifdef _OPENMP
-                    #pragma omp parallel private(__pyx_t_14, __pyx_t_18, __pyx_t_19, __pyx_t_20, __pyx_t_21) private(__pyx_filename, __pyx_lineno, __pyx_clineno) shared(__pyx_parallel_why, __pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb)
-                    #endif /* _OPENMP */
-                    {
-                        #ifdef _OPENMP
-                        #ifdef WITH_THREAD
-                        PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                        #endif
-                        Py_BEGIN_ALLOW_THREADS
-                        #endif /* _OPENMP */
-                        #ifdef _OPENMP
-                        #pragma omp for firstprivate(__pyx_v_j) lastprivate(__pyx_v_j) lastprivate(__pyx_v_nx) lastprivate(__pyx_v_ny) lastprivate(__pyx_v_nz) lastprivate(__pyx_v_p_sum) lastprivate(__pyx_v_vx) lastprivate(__pyx_v_vy) lastprivate(__pyx_v_vz)
-                        #endif /* _OPENMP */
-                        for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16++){
-                            if (__pyx_parallel_why < 2)
-                            {
-                                __pyx_v_j = (int)(0 + 1 * __pyx_t_16);
-                                /* Initialize private variables to invalid values */
-                                __pyx_v_nx = ((double)__PYX_NAN());
-                                __pyx_v_ny = ((double)__PYX_NAN());
-                                __pyx_v_nz = ((double)__PYX_NAN());
-                                __pyx_v_vx = ((double)__PYX_NAN());
-                                __pyx_v_vy = ((double)__PYX_NAN());
-                                __pyx_v_vz = ((double)__PYX_NAN());
-
-                                /* "pymaxion/particle_system.pyx":109
- *                 # move the particles
- *                     for j in prange(self.n_particles):
- *                         nx = 0.0             # <<<<<<<<<<<<<<
- *                         ny = 0.0
- *                         nz = 0.0
- */
-                                __pyx_v_nx = 0.0;
-
-                                /* "pymaxion/particle_system.pyx":110
- *                     for j in prange(self.n_particles):
- *                         nx = 0.0
- *                         ny = 0.0             # <<<<<<<<<<<<<<
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:
- */
-                                __pyx_v_ny = 0.0;
-
-                                /* "pymaxion/particle_system.pyx":111
- *                         nx = 0.0
- *                         ny = 0.0
- *                         nz = 0.0             # <<<<<<<<<<<<<<
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]
- */
-                                __pyx_v_nz = 0.0;
-
-                                /* "pymaxion/particle_system.pyx":112
- *                         ny = 0.0
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- */
-                                __pyx_t_18 = __pyx_v_j;
-                                __pyx_t_14 = (((*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_18 * __pyx_v_p_weights.strides[0]) ))) != 0.0) != 0);
-                                if (__pyx_t_14) {
-
-                                  /* "pymaxion/particle_system.pyx":113
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]
- */
-                                  __pyx_t_18 = __pyx_v_j;
-                                  __pyx_t_19 = 0;
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_v_nx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_18 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_19 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_20 * __pyx_v_p_weights.strides[0]) ))));
-
-                                  /* "pymaxion/particle_system.pyx":114
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx
- */
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_t_19 = 1;
-                                  __pyx_t_18 = __pyx_v_j;
-                                  __pyx_v_ny = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_20 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_19 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_18 * __pyx_v_p_weights.strides[0]) ))));
-
-                                  /* "pymaxion/particle_system.pyx":115
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny
- */
-                                  __pyx_t_18 = __pyx_v_j;
-                                  __pyx_t_19 = 2;
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_v_nz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_18 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_19 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_20 * __pyx_v_p_weights.strides[0]) ))));
-
-                                  /* "pymaxion/particle_system.pyx":116
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx             # <<<<<<<<<<<<<<
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- */
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_t_19 = 0;
-                                  __pyx_v_vx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nx);
-
-                                  /* "pymaxion/particle_system.pyx":117
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny             # <<<<<<<<<<<<<<
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- */
-                                  __pyx_t_19 = __pyx_v_j;
-                                  __pyx_t_20 = 1;
-                                  __pyx_v_vy = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_19 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_20 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_ny);
-
-                                  /* "pymaxion/particle_system.pyx":118
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz             # <<<<<<<<<<<<<<
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- *                             # reversed direction slow down
- */
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_t_19 = 2;
-                                  __pyx_v_vz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nz);
-
-                                  /* "pymaxion/particle_system.pyx":112
- *                         ny = 0.0
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- */
-                                }
-
-                                /* "pymaxion/particle_system.pyx":119
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
- *                             # reversed direction slow down
- *                             vx = vx * 0.9
- */
-                                __pyx_t_14 = (((((__pyx_v_nx * __pyx_v_vx) + (__pyx_v_ny * __pyx_v_vy)) + (__pyx_v_nz * __pyx_v_vz)) < 0.0) != 0);
-                                if (__pyx_t_14) {
-
-                                  /* "pymaxion/particle_system.pyx":121
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- *                             # reversed direction slow down
- *                             vx = vx * 0.9             # <<<<<<<<<<<<<<
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9
- */
-                                  __pyx_v_vx = (__pyx_v_vx * 0.9);
-
-                                  /* "pymaxion/particle_system.pyx":122
- *                             # reversed direction slow down
- *                             vx = vx * 0.9
- *                             vy = vy * 0.9             # <<<<<<<<<<<<<<
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx
- */
-                                  __pyx_v_vy = (__pyx_v_vy * 0.9);
-
-                                  /* "pymaxion/particle_system.pyx":123
- *                             vx = vx * 0.9
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9             # <<<<<<<<<<<<<<
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny
- */
-                                  __pyx_v_vz = (__pyx_v_vz * 0.9);
-
-                                  /* "pymaxion/particle_system.pyx":119
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
- *                             # reversed direction slow down
- *                             vx = vx * 0.9
- */
-                                }
-
-                                /* "pymaxion/particle_system.pyx":124
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx             # <<<<<<<<<<<<<<
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz
- */
-                                __pyx_t_19 = __pyx_v_j;
-                                __pyx_t_20 = 0;
-                                *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_19 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_20 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nx;
-
-                                /* "pymaxion/particle_system.pyx":125
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny             # <<<<<<<<<<<<<<
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- */
-                                __pyx_t_20 = __pyx_v_j;
-                                __pyx_t_19 = 1;
-                                *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_20 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_19 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_ny;
-
-                                /* "pymaxion/particle_system.pyx":126
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz             # <<<<<<<<<<<<<<
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() == 0.0):
- */
-                                __pyx_t_19 = __pyx_v_j;
-                                __pyx_t_20 = 2;
-                                *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_19 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_20 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nz;
-
-                                /* "pymaxion/particle_system.pyx":127
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)             # <<<<<<<<<<<<<<
- *                         if (p_sum.length() == 0.0):
- *                             vx = 0.0
- */
-                                try {
-                                  __pyx_t_21 = geometry::Vector3d(__pyx_v_nx, __pyx_v_ny, __pyx_v_nz);
-                                } catch(...) {
-                                  #ifdef WITH_THREAD
-                                  PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                                  #endif
-                                  __Pyx_CppExn2PyErr();
-                                  #ifdef WITH_THREAD
-                                  __Pyx_PyGILState_Release(__pyx_gilstate_save);
-                                  #endif
-                                  __PYX_ERR(0, 127, __pyx_L24_error)
-                                }
-                                __pyx_v_p_sum = __pyx_t_21;
-
-                                /* "pymaxion/particle_system.pyx":128
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() == 0.0):             # <<<<<<<<<<<<<<
- *                             vx = 0.0
- *                             vy = 0.0
- */
-                                __pyx_t_14 = ((__pyx_v_p_sum.length() == 0.0) != 0);
-                                if (__pyx_t_14) {
-
-                                  /* "pymaxion/particle_system.pyx":129
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() == 0.0):
- *                             vx = 0.0             # <<<<<<<<<<<<<<
- *                             vy = 0.0
- *                             vz = 0.0
- */
-                                  __pyx_v_vx = 0.0;
-
-                                  /* "pymaxion/particle_system.pyx":130
- *                         if (p_sum.length() == 0.0):
- *                             vx = 0.0
- *                             vy = 0.0             # <<<<<<<<<<<<<<
- *                             vz = 0.0
- *                             p_vel[j, 0] = vx
- */
-                                  __pyx_v_vy = 0.0;
-
-                                  /* "pymaxion/particle_system.pyx":131
- *                             vx = 0.0
- *                             vy = 0.0
- *                             vz = 0.0             # <<<<<<<<<<<<<<
- *                             p_vel[j, 0] = vx
- *                             p_vel[j, 1] = vy
- */
-                                  __pyx_v_vz = 0.0;
-
-                                  /* "pymaxion/particle_system.pyx":132
- *                             vy = 0.0
- *                             vz = 0.0
- *                             p_vel[j, 0] = vx             # <<<<<<<<<<<<<<
- *                             p_vel[j, 1] = vy
- *                             p_vel[j, 2] = vz
- */
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_t_19 = 0;
-                                  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vx;
-
-                                  /* "pymaxion/particle_system.pyx":133
- *                             vz = 0.0
- *                             p_vel[j, 0] = vx
- *                             p_vel[j, 1] = vy             # <<<<<<<<<<<<<<
- *                             p_vel[j, 2] = vz
- *                     v_sum = 0.0
- */
-                                  __pyx_t_19 = __pyx_v_j;
-                                  __pyx_t_20 = 1;
-                                  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_19 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_20 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vy;
-
-                                  /* "pymaxion/particle_system.pyx":134
- *                             p_vel[j, 0] = vx
- *                             p_vel[j, 1] = vy
- *                             p_vel[j, 2] = vz             # <<<<<<<<<<<<<<
- *                     v_sum = 0.0
- *                     for j in prange(self.n_particles):
- */
-                                  __pyx_t_20 = __pyx_v_j;
-                                  __pyx_t_19 = 2;
-                                  *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vz;
-
-                                  /* "pymaxion/particle_system.pyx":128
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() == 0.0):             # <<<<<<<<<<<<<<
- *                             vx = 0.0
- *                             vy = 0.0
- */
-                                }
-                                goto __pyx_L30;
-                                __pyx_L24_error:;
-                                {
-                                    #ifdef WITH_THREAD
-                                    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                                    #endif
-                                    #ifdef _OPENMP
-                                    #pragma omp flush(__pyx_parallel_exc_type)
-                                    #endif /* _OPENMP */
-                                    if (!__pyx_parallel_exc_type) {
-                                      __Pyx_ErrFetchWithState(&__pyx_parallel_exc_type, &__pyx_parallel_exc_value, &__pyx_parallel_exc_tb);
-                                      __pyx_parallel_filename = __pyx_filename; __pyx_parallel_lineno = __pyx_lineno; __pyx_parallel_clineno = __pyx_clineno;
-                                      __Pyx_GOTREF(__pyx_parallel_exc_type);
-                                    }
-                                    #ifdef WITH_THREAD
-                                    __Pyx_PyGILState_Release(__pyx_gilstate_save);
-                                    #endif
-                                }
-                                __pyx_parallel_why = 4;
-                                goto __pyx_L29;
-                                __pyx_L29:;
-                                #ifdef _OPENMP
-                                #pragma omp critical(__pyx_parallel_lastprivates0)
-                                #endif /* _OPENMP */
-                                {
-                                    __pyx_parallel_temp0 = __pyx_v_j;
-                                    __pyx_parallel_temp1 = __pyx_v_nx;
-                                    __pyx_parallel_temp2 = __pyx_v_ny;
-                                    __pyx_parallel_temp3 = __pyx_v_nz;
-                                    __pyx_parallel_temp4 = __pyx_v_p_sum;
-                                    __pyx_parallel_temp5 = __pyx_v_vx;
-                                    __pyx_parallel_temp6 = __pyx_v_vy;
-                                    __pyx_parallel_temp7 = __pyx_v_vz;
-                                }
-                                __pyx_L30:;
-                                #ifdef _OPENMP
-                                #pragma omp flush(__pyx_parallel_why)
-                                #endif /* _OPENMP */
-                            }
-                        }
-                        #ifdef _OPENMP
-                        Py_END_ALLOW_THREADS
-                        #else
-{
-#ifdef WITH_THREAD
-                        PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                        #endif
-                        #endif /* _OPENMP */
-                        /* Clean up any temporaries */
-                        #ifdef WITH_THREAD
-                        __Pyx_PyGILState_Release(__pyx_gilstate_save);
-                        #endif
-                        #ifndef _OPENMP
-}
-#endif /* _OPENMP */
-                    }
-                }
-                if (__pyx_parallel_exc_type) {
-                  /* This may have been overridden by a continue, break or return in another thread. Prefer the error. */
-                  __pyx_parallel_why = 4;
-                }
-                if (__pyx_parallel_why) {
-                  __pyx_v_j = __pyx_parallel_temp0;
-                  __pyx_v_nx = __pyx_parallel_temp1;
-                  __pyx_v_ny = __pyx_parallel_temp2;
-                  __pyx_v_nz = __pyx_parallel_temp3;
-                  __pyx_v_p_sum = __pyx_parallel_temp4;
-                  __pyx_v_vx = __pyx_parallel_temp5;
-                  __pyx_v_vy = __pyx_parallel_temp6;
-                  __pyx_v_vz = __pyx_parallel_temp7;
-                  switch (__pyx_parallel_why) {
-                        case 4:
-                    {
-                        #ifdef WITH_THREAD
-                        PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                        #endif
-                        __Pyx_GIVEREF(__pyx_parallel_exc_type);
-                        __Pyx_ErrRestoreWithState(__pyx_parallel_exc_type, __pyx_parallel_exc_value, __pyx_parallel_exc_tb);
-                        __pyx_filename = __pyx_parallel_filename; __pyx_lineno = __pyx_parallel_lineno; __pyx_clineno = __pyx_parallel_clineno;
-                        #ifdef WITH_THREAD
-                        __Pyx_PyGILState_Release(__pyx_gilstate_save);
-                        #endif
-                    }
-                    goto __pyx_L12_error;
-                  }
-                }
-            }
-            #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                #undef likely
-                #undef unlikely
-                #define likely(x)   __builtin_expect(!!(x), 1)
-                #define unlikely(x) __builtin_expect(!!(x), 0)
-            #endif
-
-            /* "pymaxion/particle_system.pyx":135
- *                             p_vel[j, 1] = vy
- *                             p_vel[j, 2] = vz
- *                     v_sum = 0.0             # <<<<<<<<<<<<<<
- *                     for j in prange(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- */
-            __pyx_v_v_sum = 0.0;
-
-            /* "pymaxion/particle_system.pyx":136
- *                             p_vel[j, 2] = vz
- *                     v_sum = 0.0
- *                     for j in prange(self.n_particles):             # <<<<<<<<<<<<<<
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- */
-            __pyx_t_15 = __pyx_v_self->n_particles;
-            if ((1 == 0)) abort();
-            {
-                #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                    #undef likely
-                    #undef unlikely
-                    #define likely(x)   (x)
-                    #define unlikely(x) (x)
-                #endif
-                __pyx_t_17 = (__pyx_t_15 - 0 + 1 - 1/abs(1)) / 1;
-                if (__pyx_t_17 > 0)
-                {
-                    #ifdef _OPENMP
-                    #pragma omp parallel reduction(+:__pyx_v_v_sum) private(__pyx_t_18, __pyx_t_19, __pyx_t_20, __pyx_t_22, __pyx_t_23, __pyx_t_24, __pyx_t_25, __pyx_t_26, __pyx_t_27, __pyx_t_28, __pyx_t_29, __pyx_t_30)
-                    #endif /* _OPENMP */
-                    {
-                        #ifdef _OPENMP
-                        #pragma omp for firstprivate(__pyx_v_j) lastprivate(__pyx_v_j)
-                        #endif /* _OPENMP */
-                        for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_17; __pyx_t_16++){
-                            {
-                                __pyx_v_j = (int)(0 + 1 * __pyx_t_16);
-
-                                /* "pymaxion/particle_system.pyx":137
- *                     v_sum = 0.0
- *                     for j in prange(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- */
-                                __pyx_t_19 = __pyx_v_j;
-                                __pyx_t_20 = 0;
-                                __pyx_t_18 = __pyx_v_j;
-                                __pyx_t_22 = 0;
-
-                                /* "pymaxion/particle_system.pyx":138
- *                     for j in prange(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- */
-                                __pyx_t_23 = __pyx_v_j;
-                                __pyx_t_24 = 1;
-                                __pyx_t_25 = __pyx_v_j;
-                                __pyx_t_26 = 1;
-
-                                /* "pymaxion/particle_system.pyx":139
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]             # <<<<<<<<<<<<<<
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:
- */
-                                __pyx_t_27 = __pyx_v_j;
-                                __pyx_t_28 = 2;
-                                __pyx_t_29 = __pyx_v_j;
-                                __pyx_t_30 = 2;
-
-                                /* "pymaxion/particle_system.pyx":137
- *                     v_sum = 0.0
- *                     for j in prange(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- */
-                                __pyx_v_v_sum = (__pyx_v_v_sum + ((((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_19 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_20 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_18 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_22 * __pyx_v_p_vel.strides[1]) )))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_23 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_24 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_25 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_26 * __pyx_v_p_vel.strides[1]) ))))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_27 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_28 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_29 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_30 * __pyx_v_p_vel.strides[1]) ))))));
-                            }
-                        }
-                    }
-                }
-            }
-            #if ((defined(__APPLE__) || defined(__OSX__)) && (defined(__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))))
-                #undef likely
-                #undef unlikely
-                #define likely(x)   __builtin_expect(!!(x), 1)
-                #define unlikely(x) __builtin_expect(!!(x), 0)
-            #endif
-
-            /* "pymaxion/particle_system.pyx":140
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles             # <<<<<<<<<<<<<<
- *                     if v_sum < ke:
- *                         flag = True
- */
-            __pyx_v_v_sum = (__pyx_v_v_sum / __pyx_v_self->n_particles);
-
-            /* "pymaxion/particle_system.pyx":141
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:             # <<<<<<<<<<<<<<
- *                         flag = True
- *                     # reset moves and weights
- */
-            __pyx_t_14 = ((__pyx_v_v_sum < __pyx_v_ke) != 0);
-            if (__pyx_t_14) {
-
-              /* "pymaxion/particle_system.pyx":142
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:
- *                         flag = True             # <<<<<<<<<<<<<<
- *                     # reset moves and weights
- *                     p_weights[:] = 0.0
- */
-              __pyx_v_flag = 1;
-
-              /* "pymaxion/particle_system.pyx":141
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:             # <<<<<<<<<<<<<<
- *                         flag = True
- *                     # reset moves and weights
- */
-            }
-
-            /* "pymaxion/particle_system.pyx":144
- *                         flag = True
- *                     # reset moves and weights
- *                     p_weights[:] = 0.0             # <<<<<<<<<<<<<<
- *                     p_moves[:, :] = 0.0
- *             else:
- */
-            {
-                double __pyx_temp_scalar = 0.0;
-                {
-                    Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_weights.shape[0];
-                    Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_weights.strides[0];
-                    char *__pyx_temp_pointer_0;
-                    Py_ssize_t __pyx_temp_idx_0;
-                    __pyx_temp_pointer_0 = __pyx_v_p_weights.data;
-                    for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                      *((double *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
-                      __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                    }
-                }
-            }
-
-            /* "pymaxion/particle_system.pyx":145
- *                     # reset moves and weights
- *                     p_weights[:] = 0.0
- *                     p_moves[:, :] = 0.0             # <<<<<<<<<<<<<<
- *             else:
- *                 with nogil:
- */
-            {
-                double __pyx_temp_scalar = 0.0;
-                {
-                    Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_moves.shape[0];
-                    Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_moves.strides[0];
-                    char *__pyx_temp_pointer_0;
-                    Py_ssize_t __pyx_temp_idx_0;
-                    Py_ssize_t __pyx_temp_extent_1 = __pyx_v_p_moves.shape[1];
-                    Py_ssize_t __pyx_temp_stride_1 = __pyx_v_p_moves.strides[1];
-                    char *__pyx_temp_pointer_1;
-                    Py_ssize_t __pyx_temp_idx_1;
-                    __pyx_temp_pointer_0 = __pyx_v_p_moves.data;
-                    for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                      __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
-                      for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
-                        *((double *) __pyx_temp_pointer_1) = __pyx_temp_scalar;
-                        __pyx_temp_pointer_1 += __pyx_temp_stride_1;
-                      }
-                      __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                    }
-                }
-            }
-          }
-
-          /* "pymaxion/particle_system.pyx":102
+            /* "pymaxion/particle_system.pyx":133
  *             # release GIL for parallel constraint solve
- *             if parallel:
- *                 with nogil:             # <<<<<<<<<<<<<<
+ *             with nogil:
+ *                 if parallel:             # <<<<<<<<<<<<<<
  *                     for j in prange(self.n_goals):
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  */
-          /*finally:*/ {
-            /*normal exit:*/{
-              #ifdef WITH_THREAD
-              __Pyx_FastGIL_Forget();
-              Py_BLOCK_THREADS
-              #endif
-              goto __pyx_L13;
-            }
-            __pyx_L12_error: {
-              #ifdef WITH_THREAD
-              __Pyx_FastGIL_Forget();
-              Py_BLOCK_THREADS
-              #endif
-              goto __pyx_L1_error;
-            }
-            __pyx_L13:;
+            goto __pyx_L13;
           }
-      }
 
-      /* "pymaxion/particle_system.pyx":101
- *                 break
- *             # release GIL for parallel constraint solve
- *             if parallel:             # <<<<<<<<<<<<<<
- *                 with nogil:
- *                     for j in prange(self.n_goals):
- */
-      goto __pyx_L8;
-    }
-
-    /* "pymaxion/particle_system.pyx":147
- *                     p_moves[:, :] = 0.0
- *             else:
- *                 with nogil:             # <<<<<<<<<<<<<<
- *                     for j in range(self.n_goals):
- *                         # Can casting check for safety be moved to ref goal loading?
- */
-    /*else*/ {
-      {
-          #ifdef WITH_THREAD
-          PyThreadState *_save;
-          Py_UNBLOCK_THREADS
-          __Pyx_FastGIL_Remember();
-          #endif
-          /*try:*/ {
-
-            /* "pymaxion/particle_system.pyx":148
- *             else:
- *                 with nogil:
+          /* "pymaxion/particle_system.pyx":139
+ *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+ *                 else:
  *                     for j in range(self.n_goals):             # <<<<<<<<<<<<<<
  *                         # Can casting check for safety be moved to ref goal loading?
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  */
+          /*else*/ {
             __pyx_t_17 = __pyx_v_self->n_goals;
             __pyx_t_16 = __pyx_t_17;
             for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
               __pyx_v_j = __pyx_t_15;
 
-              /* "pymaxion/particle_system.pyx":150
+              /* "pymaxion/particle_system.pyx":141
  *                     for j in range(self.n_goals):
  *                         # Can casting check for safety be moved to ref goal loading?
  *                         (<Goal?>self.goals[j]).calculate(p_pos)             # <<<<<<<<<<<<<<
@@ -5205,7 +4882,7 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
               ((struct __pyx_vtabstruct_8pymaxion_5goals_4goal_Goal *)((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j]))->__pyx_vtab)->calculate(((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j])), __pyx_v_p_pos);
             }
 
-            /* "pymaxion/particle_system.pyx":151
+            /* "pymaxion/particle_system.pyx":142
  *                         # Can casting check for safety be moved to ref goal loading?
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  *                     for j in range(self.n_goals):             # <<<<<<<<<<<<<<
@@ -5217,522 +4894,229 @@ static PyObject *__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve(stru
             for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
               __pyx_v_j = __pyx_t_15;
 
-              /* "pymaxion/particle_system.pyx":152
+              /* "pymaxion/particle_system.pyx":143
  *                         (<Goal?>self.goals[j]).calculate(p_pos)
  *                     for j in range(self.n_goals):
  *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)             # <<<<<<<<<<<<<<
  *                 # move the particles
- *                     for j in range(self.n_particles):
+ *                 for j in range(self.n_particles):
  */
               ((struct __pyx_vtabstruct_8pymaxion_5goals_4goal_Goal *)((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j]))->__pyx_vtab)->sum_moves(((struct __pyx_obj_8pymaxion_5goals_4goal_Goal *)(__pyx_v_self->goals[__pyx_v_j])), __pyx_v_p_moves, __pyx_v_p_weights);
             }
+          }
+          __pyx_L13:;
 
-            /* "pymaxion/particle_system.pyx":154
+          /* "pymaxion/particle_system.pyx":145
  *                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
  *                 # move the particles
- *                     for j in range(self.n_particles):             # <<<<<<<<<<<<<<
- *                         # wrap this as a function? identical to prange version...
- *                         nx = 0.0
+ *                 for j in range(self.n_particles):             # <<<<<<<<<<<<<<
+ *                     self.move_particle(j, p_moves, p_weights, p_pos, p_vel)
+ *                 v_sum = 0.0
  */
-            __pyx_t_17 = __pyx_v_self->n_particles;
-            __pyx_t_16 = __pyx_t_17;
-            for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
-              __pyx_v_j = __pyx_t_15;
+          __pyx_t_17 = __pyx_v_self->n_particles;
+          __pyx_t_16 = __pyx_t_17;
+          for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
+            __pyx_v_j = __pyx_t_15;
 
-              /* "pymaxion/particle_system.pyx":156
- *                     for j in range(self.n_particles):
- *                         # wrap this as a function? identical to prange version...
- *                         nx = 0.0             # <<<<<<<<<<<<<<
- *                         ny = 0.0
- *                         nz = 0.0
+            /* "pymaxion/particle_system.pyx":146
+ *                 # move the particles
+ *                 for j in range(self.n_particles):
+ *                     self.move_particle(j, p_moves, p_weights, p_pos, p_vel)             # <<<<<<<<<<<<<<
+ *                 v_sum = 0.0
+ *                 for j in range(self.n_particles):
  */
-              __pyx_v_nx = 0.0;
-
-              /* "pymaxion/particle_system.pyx":157
- *                         # wrap this as a function? identical to prange version...
- *                         nx = 0.0
- *                         ny = 0.0             # <<<<<<<<<<<<<<
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:
- */
-              __pyx_v_ny = 0.0;
-
-              /* "pymaxion/particle_system.pyx":158
- *                         nx = 0.0
- *                         ny = 0.0
- *                         nz = 0.0             # <<<<<<<<<<<<<<
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]
- */
-              __pyx_v_nz = 0.0;
-
-              /* "pymaxion/particle_system.pyx":159
- *                         ny = 0.0
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- */
-              __pyx_t_30 = __pyx_v_j;
-              __pyx_t_14 = (((*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_30 * __pyx_v_p_weights.strides[0]) ))) != 0.0) != 0);
-              if (__pyx_t_14) {
-
-                /* "pymaxion/particle_system.pyx":160
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]
- */
-                __pyx_t_30 = __pyx_v_j;
-                __pyx_t_29 = 0;
-                __pyx_t_28 = __pyx_v_j;
-                __pyx_v_nx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_30 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_29 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_28 * __pyx_v_p_weights.strides[0]) ))));
-
-                /* "pymaxion/particle_system.pyx":161
- *                         if p_weights[j] != 0.0:
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx
- */
-                __pyx_t_28 = __pyx_v_j;
-                __pyx_t_29 = 1;
-                __pyx_t_30 = __pyx_v_j;
-                __pyx_v_ny = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_28 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_29 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_30 * __pyx_v_p_weights.strides[0]) ))));
-
-                /* "pymaxion/particle_system.pyx":162
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]             # <<<<<<<<<<<<<<
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny
- */
-                __pyx_t_30 = __pyx_v_j;
-                __pyx_t_29 = 2;
-                __pyx_t_28 = __pyx_v_j;
-                __pyx_v_nz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_moves.data + __pyx_t_30 * __pyx_v_p_moves.strides[0]) ) + __pyx_t_29 * __pyx_v_p_moves.strides[1]) ))) / (*((double *) ( /* dim=0 */ (__pyx_v_p_weights.data + __pyx_t_28 * __pyx_v_p_weights.strides[0]) ))));
-
-                /* "pymaxion/particle_system.pyx":163
- *                             ny = p_moves[j, 1] / p_weights[j]
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx             # <<<<<<<<<<<<<<
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- */
-                __pyx_t_28 = __pyx_v_j;
-                __pyx_t_29 = 0;
-                __pyx_v_vx = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_28 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_29 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nx);
-
-                /* "pymaxion/particle_system.pyx":164
- *                             nz = p_moves[j, 2] / p_weights[j]
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny             # <<<<<<<<<<<<<<
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- */
-                __pyx_t_29 = __pyx_v_j;
-                __pyx_t_28 = 1;
-                __pyx_v_vy = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_29 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_28 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_ny);
-
-                /* "pymaxion/particle_system.pyx":165
- *                             vx = p_vel[j, 0] + nx
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz             # <<<<<<<<<<<<<<
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- *                             # reverseed direction slowdown
- */
-                __pyx_t_28 = __pyx_v_j;
-                __pyx_t_29 = 2;
-                __pyx_v_vz = ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_28 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_29 * __pyx_v_p_vel.strides[1]) ))) + __pyx_v_nz);
-
-                /* "pymaxion/particle_system.pyx":159
- *                         ny = 0.0
- *                         nz = 0.0
- *                         if p_weights[j] != 0.0:             # <<<<<<<<<<<<<<
- *                             nx = p_moves[j, 0] / p_weights[j]
- *                             ny = p_moves[j, 1] / p_weights[j]
- */
-              }
-
-              /* "pymaxion/particle_system.pyx":166
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
- *                             # reverseed direction slowdown
- *                             vx = vx * 0.9
- */
-              __pyx_t_14 = (((((__pyx_v_nx * __pyx_v_vx) + (__pyx_v_ny * __pyx_v_vy)) + (__pyx_v_nz * __pyx_v_vz)) < 0.0) != 0);
-              if (__pyx_t_14) {
-
-                /* "pymaxion/particle_system.pyx":168
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:
- *                             # reverseed direction slowdown
- *                             vx = vx * 0.9             # <<<<<<<<<<<<<<
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9
- */
-                __pyx_v_vx = (__pyx_v_vx * 0.9);
-
-                /* "pymaxion/particle_system.pyx":169
- *                             # reverseed direction slowdown
- *                             vx = vx * 0.9
- *                             vy = vy * 0.9             # <<<<<<<<<<<<<<
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx
- */
-                __pyx_v_vy = (__pyx_v_vy * 0.9);
-
-                /* "pymaxion/particle_system.pyx":170
- *                             vx = vx * 0.9
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9             # <<<<<<<<<<<<<<
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny
- */
-                __pyx_v_vz = (__pyx_v_vz * 0.9);
-
-                /* "pymaxion/particle_system.pyx":166
- *                             vy = p_vel[j, 1] + ny
- *                             vz = p_vel[j, 2] + nz
- *                         if (nx*vx + ny*vy + nz*vz) < 0.0:             # <<<<<<<<<<<<<<
- *                             # reverseed direction slowdown
- *                             vx = vx * 0.9
- */
-              }
-
-              /* "pymaxion/particle_system.pyx":171
- *                             vy = vy * 0.9
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx             # <<<<<<<<<<<<<<
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz
- */
-              __pyx_t_29 = __pyx_v_j;
-              __pyx_t_28 = 0;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_29 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_28 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nx;
-
-              /* "pymaxion/particle_system.pyx":172
- *                             vz = vz * 0.9
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny             # <<<<<<<<<<<<<<
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- */
-              __pyx_t_28 = __pyx_v_j;
-              __pyx_t_29 = 1;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_28 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_29 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_ny;
-
-              /* "pymaxion/particle_system.pyx":173
- *                         p_pos[j, 0] += nx
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz             # <<<<<<<<<<<<<<
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() <= 1e-10):
- */
-              __pyx_t_29 = __pyx_v_j;
-              __pyx_t_28 = 2;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_pos.data + __pyx_t_29 * __pyx_v_p_pos.strides[0]) ) + __pyx_t_28 * __pyx_v_p_pos.strides[1]) )) += __pyx_v_nz;
-
-              /* "pymaxion/particle_system.pyx":174
- *                         p_pos[j, 1] += ny
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)             # <<<<<<<<<<<<<<
- *                         if (p_sum.length() <= 1e-10):
- *                             vx = 0.0
- */
-              try {
-                __pyx_t_21 = geometry::Vector3d(__pyx_v_nx, __pyx_v_ny, __pyx_v_nz);
-              } catch(...) {
-                #ifdef WITH_THREAD
-                PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
-                #endif
-                __Pyx_CppExn2PyErr();
-                #ifdef WITH_THREAD
-                __Pyx_PyGILState_Release(__pyx_gilstate_save);
-                #endif
-                __PYX_ERR(0, 174, __pyx_L41_error)
-              }
-              __pyx_v_p_sum = __pyx_t_21;
-
-              /* "pymaxion/particle_system.pyx":175
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() <= 1e-10):             # <<<<<<<<<<<<<<
- *                             vx = 0.0
- *                             vy = 0.0
- */
-              __pyx_t_14 = ((__pyx_v_p_sum.length() <= 1e-10) != 0);
-              if (__pyx_t_14) {
-
-                /* "pymaxion/particle_system.pyx":176
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() <= 1e-10):
- *                             vx = 0.0             # <<<<<<<<<<<<<<
- *                             vy = 0.0
- *                             vz = 0.0
- */
-                __pyx_v_vx = 0.0;
-
-                /* "pymaxion/particle_system.pyx":177
- *                         if (p_sum.length() <= 1e-10):
- *                             vx = 0.0
- *                             vy = 0.0             # <<<<<<<<<<<<<<
- *                             vz = 0.0
- *                         p_vel[j, 0] = vx
- */
-                __pyx_v_vy = 0.0;
-
-                /* "pymaxion/particle_system.pyx":178
- *                             vx = 0.0
- *                             vy = 0.0
- *                             vz = 0.0             # <<<<<<<<<<<<<<
- *                         p_vel[j, 0] = vx
- *                         p_vel[j, 1] = vy
- */
-                __pyx_v_vz = 0.0;
-
-                /* "pymaxion/particle_system.pyx":175
- *                         p_pos[j, 2] += nz
- *                         p_sum = Vector3d(nx, ny, nz)
- *                         if (p_sum.length() <= 1e-10):             # <<<<<<<<<<<<<<
- *                             vx = 0.0
- *                             vy = 0.0
- */
-              }
-
-              /* "pymaxion/particle_system.pyx":179
- *                             vy = 0.0
- *                             vz = 0.0
- *                         p_vel[j, 0] = vx             # <<<<<<<<<<<<<<
- *                         p_vel[j, 1] = vy
- *                         p_vel[j, 2] = vz
- */
-              __pyx_t_28 = __pyx_v_j;
-              __pyx_t_29 = 0;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_28 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_29 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vx;
-
-              /* "pymaxion/particle_system.pyx":180
- *                             vz = 0.0
- *                         p_vel[j, 0] = vx
- *                         p_vel[j, 1] = vy             # <<<<<<<<<<<<<<
- *                         p_vel[j, 2] = vz
- *                     v_sum = 0.0
- */
-              __pyx_t_29 = __pyx_v_j;
-              __pyx_t_28 = 1;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_29 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_28 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vy;
-
-              /* "pymaxion/particle_system.pyx":181
- *                         p_vel[j, 0] = vx
- *                         p_vel[j, 1] = vy
- *                         p_vel[j, 2] = vz             # <<<<<<<<<<<<<<
- *                     v_sum = 0.0
- *                     for j in range(self.n_particles):
- */
-              __pyx_t_28 = __pyx_v_j;
-              __pyx_t_29 = 2;
-              *((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_28 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_29 * __pyx_v_p_vel.strides[1]) )) = __pyx_v_vz;
-            }
-
-            /* "pymaxion/particle_system.pyx":182
- *                         p_vel[j, 1] = vy
- *                         p_vel[j, 2] = vz
- *                     v_sum = 0.0             # <<<<<<<<<<<<<<
- *                     for j in range(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- */
-            __pyx_v_v_sum = 0.0;
-
-            /* "pymaxion/particle_system.pyx":183
- *                         p_vel[j, 2] = vz
- *                     v_sum = 0.0
- *                     for j in range(self.n_particles):             # <<<<<<<<<<<<<<
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- */
-            __pyx_t_17 = __pyx_v_self->n_particles;
-            __pyx_t_16 = __pyx_t_17;
-            for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
-              __pyx_v_j = __pyx_t_15;
-
-              /* "pymaxion/particle_system.pyx":184
- *                     v_sum = 0.0
- *                     for j in range(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- */
-              __pyx_t_29 = __pyx_v_j;
-              __pyx_t_28 = 0;
-              __pyx_t_30 = __pyx_v_j;
-              __pyx_t_27 = 0;
-
-              /* "pymaxion/particle_system.pyx":185
- *                     for j in range(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- */
-              __pyx_t_26 = __pyx_v_j;
-              __pyx_t_25 = 1;
-              __pyx_t_24 = __pyx_v_j;
-              __pyx_t_23 = 1;
-
-              /* "pymaxion/particle_system.pyx":186
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]             # <<<<<<<<<<<<<<
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:
- */
-              __pyx_t_22 = __pyx_v_j;
-              __pyx_t_18 = 2;
-              __pyx_t_20 = __pyx_v_j;
-              __pyx_t_19 = 2;
-
-              /* "pymaxion/particle_system.pyx":184
- *                     v_sum = 0.0
- *                     for j in range(self.n_particles):
- *                         v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- */
-              __pyx_v_v_sum = (__pyx_v_v_sum + ((((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_29 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_28 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_30 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_27 * __pyx_v_p_vel.strides[1]) )))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_26 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_25 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_24 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_23 * __pyx_v_p_vel.strides[1]) ))))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_22 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_18 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) ))))));
-            }
-
-            /* "pymaxion/particle_system.pyx":187
- *                                  p_vel[j, 1] * p_vel[j, 1] + \
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles             # <<<<<<<<<<<<<<
- *                     if v_sum < ke:
- *                         flag = True
- */
-            __pyx_v_v_sum = (__pyx_v_v_sum / __pyx_v_self->n_particles);
-
-            /* "pymaxion/particle_system.pyx":188
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:             # <<<<<<<<<<<<<<
- *                         flag = True
- *                     # reset moves and weights
- */
-            __pyx_t_14 = ((__pyx_v_v_sum < __pyx_v_ke) != 0);
-            if (__pyx_t_14) {
-
-              /* "pymaxion/particle_system.pyx":189
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:
- *                         flag = True             # <<<<<<<<<<<<<<
- *                     # reset moves and weights
- *                     numiter += 1
- */
-              __pyx_v_flag = 1;
-
-              /* "pymaxion/particle_system.pyx":188
- *                                  p_vel[j, 2] * p_vel[j, 2]
- *                     v_sum /= self.n_particles
- *                     if v_sum < ke:             # <<<<<<<<<<<<<<
- *                         flag = True
- *                     # reset moves and weights
- */
-            }
-
-            /* "pymaxion/particle_system.pyx":191
- *                         flag = True
- *                     # reset moves and weights
- *                     numiter += 1             # <<<<<<<<<<<<<<
- *                     p_weights[:] = 0.0
- *                     p_moves[:, :] = 0.0
- */
-            __pyx_v_numiter = (__pyx_v_numiter + 1);
-
-            /* "pymaxion/particle_system.pyx":192
- *                     # reset moves and weights
- *                     numiter += 1
- *                     p_weights[:] = 0.0             # <<<<<<<<<<<<<<
- *                     p_moves[:, :] = 0.0
- * 
- */
-            {
-                double __pyx_temp_scalar = 0.0;
-                {
-                    Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_weights.shape[0];
-                    Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_weights.strides[0];
-                    char *__pyx_temp_pointer_0;
-                    Py_ssize_t __pyx_temp_idx_0;
-                    __pyx_temp_pointer_0 = __pyx_v_p_weights.data;
-                    for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                      *((double *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
-                      __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                    }
-                }
-            }
-
-            /* "pymaxion/particle_system.pyx":193
- *                     numiter += 1
- *                     p_weights[:] = 0.0
- *                     p_moves[:, :] = 0.0             # <<<<<<<<<<<<<<
- * 
- * 
- */
-            {
-                double __pyx_temp_scalar = 0.0;
-                {
-                    Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_moves.shape[0];
-                    Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_moves.strides[0];
-                    char *__pyx_temp_pointer_0;
-                    Py_ssize_t __pyx_temp_idx_0;
-                    Py_ssize_t __pyx_temp_extent_1 = __pyx_v_p_moves.shape[1];
-                    Py_ssize_t __pyx_temp_stride_1 = __pyx_v_p_moves.strides[1];
-                    char *__pyx_temp_pointer_1;
-                    Py_ssize_t __pyx_temp_idx_1;
-                    __pyx_temp_pointer_0 = __pyx_v_p_moves.data;
-                    for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
-                      __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
-                      for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
-                        *((double *) __pyx_temp_pointer_1) = __pyx_temp_scalar;
-                        __pyx_temp_pointer_1 += __pyx_temp_stride_1;
-                      }
-                      __pyx_temp_pointer_0 += __pyx_temp_stride_0;
-                    }
-                }
-            }
+            ((struct __pyx_vtabstruct_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self->__pyx_vtab)->move_particle(__pyx_v_self, __pyx_v_j, __pyx_v_p_moves, __pyx_v_p_weights, __pyx_v_p_pos, __pyx_v_p_vel);
           }
 
           /* "pymaxion/particle_system.pyx":147
- *                     p_moves[:, :] = 0.0
- *             else:
- *                 with nogil:             # <<<<<<<<<<<<<<
- *                     for j in range(self.n_goals):
- *                         # Can casting check for safety be moved to ref goal loading?
+ *                 for j in range(self.n_particles):
+ *                     self.move_particle(j, p_moves, p_weights, p_pos, p_vel)
+ *                 v_sum = 0.0             # <<<<<<<<<<<<<<
+ *                 for j in range(self.n_particles):
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
  */
-          /*finally:*/ {
-            /*normal exit:*/{
-              #ifdef WITH_THREAD
-              __Pyx_FastGIL_Forget();
-              Py_BLOCK_THREADS
-              #endif
-              goto __pyx_L42;
-            }
-            __pyx_L41_error: {
-              #ifdef WITH_THREAD
-              __Pyx_FastGIL_Forget();
-              Py_BLOCK_THREADS
-              #endif
-              goto __pyx_L1_error;
-            }
-            __pyx_L42:;
+          __pyx_v_v_sum = 0.0;
+
+          /* "pymaxion/particle_system.pyx":148
+ *                     self.move_particle(j, p_moves, p_weights, p_pos, p_vel)
+ *                 v_sum = 0.0
+ *                 for j in range(self.n_particles):             # <<<<<<<<<<<<<<
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+ *                              p_vel[j, 1] * p_vel[j, 1] + \
+ */
+          __pyx_t_17 = __pyx_v_self->n_particles;
+          __pyx_t_16 = __pyx_t_17;
+          for (__pyx_t_15 = 0; __pyx_t_15 < __pyx_t_16; __pyx_t_15+=1) {
+            __pyx_v_j = __pyx_t_15;
+
+            /* "pymaxion/particle_system.pyx":149
+ *                 v_sum = 0.0
+ *                 for j in range(self.n_particles):
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
+ *                              p_vel[j, 1] * p_vel[j, 1] + \
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ */
+            __pyx_t_18 = __pyx_v_j;
+            __pyx_t_19 = 0;
+            __pyx_t_20 = __pyx_v_j;
+            __pyx_t_21 = 0;
+
+            /* "pymaxion/particle_system.pyx":150
+ *                 for j in range(self.n_particles):
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+ *                              p_vel[j, 1] * p_vel[j, 1] + \             # <<<<<<<<<<<<<<
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ *                 v_sum = v_sum / self.n_particles
+ */
+            __pyx_t_22 = __pyx_v_j;
+            __pyx_t_23 = 1;
+            __pyx_t_24 = __pyx_v_j;
+            __pyx_t_25 = 1;
+
+            /* "pymaxion/particle_system.pyx":151
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+ *                              p_vel[j, 1] * p_vel[j, 1] + \
+ *                              p_vel[j, 2] * p_vel[j, 2]             # <<<<<<<<<<<<<<
+ *                 v_sum = v_sum / self.n_particles
+ *                 if v_sum < ke:
+ */
+            __pyx_t_26 = __pyx_v_j;
+            __pyx_t_27 = 2;
+            __pyx_t_28 = __pyx_v_j;
+            __pyx_t_29 = 2;
+
+            /* "pymaxion/particle_system.pyx":149
+ *                 v_sum = 0.0
+ *                 for j in range(self.n_particles):
+ *                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \             # <<<<<<<<<<<<<<
+ *                              p_vel[j, 1] * p_vel[j, 1] + \
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ */
+            __pyx_v_v_sum = (__pyx_v_v_sum + ((((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_18 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_19 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_20 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_21 * __pyx_v_p_vel.strides[1]) )))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_22 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_23 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_24 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_25 * __pyx_v_p_vel.strides[1]) ))))) + ((*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_26 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_27 * __pyx_v_p_vel.strides[1]) ))) * (*((double *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_p_vel.data + __pyx_t_28 * __pyx_v_p_vel.strides[0]) ) + __pyx_t_29 * __pyx_v_p_vel.strides[1]) ))))));
           }
-      }
+
+          /* "pymaxion/particle_system.pyx":152
+ *                              p_vel[j, 1] * p_vel[j, 1] + \
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ *                 v_sum = v_sum / self.n_particles             # <<<<<<<<<<<<<<
+ *                 if v_sum < ke:
+ *                     flag = True
+ */
+          __pyx_v_v_sum = (__pyx_v_v_sum / ((double)__pyx_v_self->n_particles));
+
+          /* "pymaxion/particle_system.pyx":153
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ *                 v_sum = v_sum / self.n_particles
+ *                 if v_sum < ke:             # <<<<<<<<<<<<<<
+ *                     flag = True
+ *                     # reset moves and weights
+ */
+          __pyx_t_14 = ((__pyx_v_v_sum < __pyx_v_ke) != 0);
+          if (__pyx_t_14) {
+
+            /* "pymaxion/particle_system.pyx":154
+ *                 v_sum = v_sum / self.n_particles
+ *                 if v_sum < ke:
+ *                     flag = True             # <<<<<<<<<<<<<<
+ *                     # reset moves and weights
+ *                 self.num_iter+= 1
+ */
+            __pyx_v_flag = 1;
+
+            /* "pymaxion/particle_system.pyx":153
+ *                              p_vel[j, 2] * p_vel[j, 2]
+ *                 v_sum = v_sum / self.n_particles
+ *                 if v_sum < ke:             # <<<<<<<<<<<<<<
+ *                     flag = True
+ *                     # reset moves and weights
+ */
+          }
+
+          /* "pymaxion/particle_system.pyx":156
+ *                     flag = True
+ *                     # reset moves and weights
+ *                 self.num_iter+= 1             # <<<<<<<<<<<<<<
+ *                 p_weights[:] = 0.0
+ *                 p_moves[:, :] = 0.0
+ */
+          __pyx_v_self->num_iter = (__pyx_v_self->num_iter + 1);
+
+          /* "pymaxion/particle_system.pyx":157
+ *                     # reset moves and weights
+ *                 self.num_iter+= 1
+ *                 p_weights[:] = 0.0             # <<<<<<<<<<<<<<
+ *                 p_moves[:, :] = 0.0
+ * 
+ */
+          {
+              double __pyx_temp_scalar = 0.0;
+              {
+                  Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_weights.shape[0];
+                  Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_weights.strides[0];
+                  char *__pyx_temp_pointer_0;
+                  Py_ssize_t __pyx_temp_idx_0;
+                  __pyx_temp_pointer_0 = __pyx_v_p_weights.data;
+                  for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+                    *((double *) __pyx_temp_pointer_0) = __pyx_temp_scalar;
+                    __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+                  }
+              }
+          }
+
+          /* "pymaxion/particle_system.pyx":158
+ *                 self.num_iter+= 1
+ *                 p_weights[:] = 0.0
+ *                 p_moves[:, :] = 0.0             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+          {
+              double __pyx_temp_scalar = 0.0;
+              {
+                  Py_ssize_t __pyx_temp_extent_0 = __pyx_v_p_moves.shape[0];
+                  Py_ssize_t __pyx_temp_stride_0 = __pyx_v_p_moves.strides[0];
+                  char *__pyx_temp_pointer_0;
+                  Py_ssize_t __pyx_temp_idx_0;
+                  Py_ssize_t __pyx_temp_extent_1 = __pyx_v_p_moves.shape[1];
+                  Py_ssize_t __pyx_temp_stride_1 = __pyx_v_p_moves.strides[1];
+                  char *__pyx_temp_pointer_1;
+                  Py_ssize_t __pyx_temp_idx_1;
+                  __pyx_temp_pointer_0 = __pyx_v_p_moves.data;
+                  for (__pyx_temp_idx_0 = 0; __pyx_temp_idx_0 < __pyx_temp_extent_0; __pyx_temp_idx_0++) {
+                    __pyx_temp_pointer_1 = __pyx_temp_pointer_0;
+                    for (__pyx_temp_idx_1 = 0; __pyx_temp_idx_1 < __pyx_temp_extent_1; __pyx_temp_idx_1++) {
+                      *((double *) __pyx_temp_pointer_1) = __pyx_temp_scalar;
+                      __pyx_temp_pointer_1 += __pyx_temp_stride_1;
+                    }
+                    __pyx_temp_pointer_0 += __pyx_temp_stride_0;
+                  }
+              }
+          }
+        }
+
+        /* "pymaxion/particle_system.pyx":132
+ *                 break
+ *             # release GIL for parallel constraint solve
+ *             with nogil:             # <<<<<<<<<<<<<<
+ *                 if parallel:
+ *                     for j in prange(self.n_goals):
+ */
+        /*finally:*/ {
+          /*normal exit:*/{
+            #ifdef WITH_THREAD
+            __Pyx_FastGIL_Forget();
+            Py_BLOCK_THREADS
+            #endif
+            goto __pyx_L12;
+          }
+          __pyx_L12:;
+        }
     }
-    __pyx_L8:;
   }
   __pyx_L6_break:;
 
-  /* "pymaxion/particle_system.pyx":73
- *             self.particle_velocities[i,:] = particle.velocity
+  /* "pymaxion/particle_system.pyx":108
+ *         p_vel[j, 2] = vz
  * 
  *     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):             # <<<<<<<<<<<<<<
  *         cdef int i
@@ -5815,7 +5199,7 @@ static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_13solve(P
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "solve") < 0)) __PYX_ERR(0, 73, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "solve") < 0)) __PYX_ERR(0, 108, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5830,24 +5214,24 @@ static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_13solve(P
       }
     }
     if (values[0]) {
-      __pyx_v_ke = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_ke == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+      __pyx_v_ke = __pyx_PyFloat_AsDouble(values[0]); if (unlikely((__pyx_v_ke == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
     } else {
       __pyx_v_ke = ((double)1e-15);
     }
     if (values[1]) {
-      __pyx_v_max_iter = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_max_iter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+      __pyx_v_max_iter = __Pyx_PyInt_As_int(values[1]); if (unlikely((__pyx_v_max_iter == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
     } else {
       __pyx_v_max_iter = ((int)0x2710);
     }
     if (values[2]) {
-      __pyx_v_parallel = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_parallel == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 73, __pyx_L3_error)
+      __pyx_v_parallel = __Pyx_PyObject_IsTrue(values[2]); if (unlikely((__pyx_v_parallel == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 108, __pyx_L3_error)
     } else {
       __pyx_v_parallel = ((int)0);
     }
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("solve", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 73, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("solve", 0, 0, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 108, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.solve", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5870,13 +5254,13 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_12solve(s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("solve", 0);
-  __Pyx_TraceCall("solve (wrapper)", __pyx_f[0], 73, 0, __PYX_ERR(0, 73, __pyx_L1_error));
+  __Pyx_TraceCall("solve (wrapper)", __pyx_f[0], 108, 0, __PYX_ERR(0, 108, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_2.__pyx_n = 3;
   __pyx_t_2.ke = __pyx_v_ke;
   __pyx_t_2.max_iter = __pyx_v_max_iter;
   __pyx_t_2.parallel = __pyx_v_parallel;
-  __pyx_t_1 = __pyx_vtabptr_8pymaxion_15particle_system_ParticleSystem->solve(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 73, __pyx_L1_error)
+  __pyx_t_1 = __pyx_vtabptr_8pymaxion_15particle_system_ParticleSystem->solve(__pyx_v_self, 1, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 108, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
@@ -5894,7 +5278,271 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_12solve(s
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":26
+/* "pymaxion/particle_system.pyx":22
+ * 
+ * cdef class ParticleSystem(object):
+ *     cdef public int n_goals             # <<<<<<<<<<<<<<
+ *     cdef public int n_particles
+ *     cdef public int num_iter
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals___get__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+  __Pyx_TraceCall("__get__", __pyx_f[0], 22, 0, __PYX_ERR(0, 22, __pyx_L1_error));
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->n_goals); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 22, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.n_goals.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_TraceReturn(__pyx_r, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals_2__set__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_7n_goals_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__set__", 0);
+  __Pyx_TraceCall("__set__", __pyx_f[0], 22, 0, __PYX_ERR(0, 22, __pyx_L1_error));
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 22, __pyx_L1_error)
+  __pyx_v_self->n_goals = __pyx_t_1;
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.n_goals.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pymaxion/particle_system.pyx":23
+ * cdef class ParticleSystem(object):
+ *     cdef public int n_goals
+ *     cdef public int n_particles             # <<<<<<<<<<<<<<
+ *     cdef public int num_iter
+ *     cdef PyObject **goals
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles___get__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+  __Pyx_TraceCall("__get__", __pyx_f[0], 23, 0, __PYX_ERR(0, 23, __pyx_L1_error));
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->n_particles); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 23, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.n_particles.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_TraceReturn(__pyx_r, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles_2__set__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_11n_particles_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__set__", 0);
+  __Pyx_TraceCall("__set__", __pyx_f[0], 23, 0, __PYX_ERR(0, 23, __pyx_L1_error));
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_v_self->n_particles = __pyx_t_1;
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.n_particles.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pymaxion/particle_system.pyx":24
+ *     cdef public int n_goals
+ *     cdef public int n_particles
+ *     cdef public int num_iter             # <<<<<<<<<<<<<<
+ *     cdef PyObject **goals
+ *     cdef PyObject **particles
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter___get__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter___get__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+  __Pyx_TraceCall("__get__", __pyx_f[0], 24, 0, __PYX_ERR(0, 24, __pyx_L1_error));
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->num_iter); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.num_iter.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_TraceReturn(__pyx_r, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value); /*proto*/
+static int __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_3__set__(PyObject *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__set__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter_2__set__(((struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *)__pyx_v_self), ((PyObject *)__pyx_v_value));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_8num_iter_2__set__(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *__pyx_v_self, PyObject *__pyx_v_value) {
+  int __pyx_r;
+  __Pyx_TraceDeclarations
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__set__", 0);
+  __Pyx_TraceCall("__set__", __pyx_f[0], 24, 0, __PYX_ERR(0, 24, __pyx_L1_error));
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_value); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_v_self->num_iter = __pyx_t_1;
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_AddTraceback("pymaxion.particle_system.ParticleSystem.num_iter.__set__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_TraceReturn(Py_None, 0);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "pymaxion/particle_system.pyx":27
  *     cdef PyObject **goals
  *     cdef PyObject **particles
  *     cdef public list ref_goals             # <<<<<<<<<<<<<<
@@ -5923,7 +5571,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goal
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 26, 0, __PYX_ERR(0, 26, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_self->ref_goals);
   __pyx_r = __pyx_v_self->ref_goals;
@@ -5962,8 +5610,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_2__s
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 26, 0, __PYX_ERR(0, 26, __pyx_L1_error));
-  if (!(likely(PyList_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 26, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
+  if (!(likely(PyList_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 27, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6006,7 +5654,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_4__d
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 26, 0, __PYX_ERR(0, 26, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->ref_goals);
@@ -6025,7 +5673,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_4__d
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":27
+/* "pymaxion/particle_system.pyx":28
  *     cdef PyObject **particles
  *     cdef public list ref_goals
  *     cdef public list ref_particles             # <<<<<<<<<<<<<<
@@ -6054,7 +5702,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_13ref_par
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(__pyx_v_self->ref_particles);
   __pyx_r = __pyx_v_self->ref_particles;
@@ -6093,8 +5741,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_13ref_particles
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
-  if (!(likely(PyList_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 27, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
+  if (!(likely(PyList_CheckExact(__pyx_v_value))||((__pyx_v_value) == Py_None)||(PyErr_Format(PyExc_TypeError, "Expected %.16s, got %.200s", "list", Py_TYPE(__pyx_v_value)->tp_name), 0))) __PYX_ERR(0, 28, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6137,7 +5785,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_13ref_particles
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 27, 0, __PYX_ERR(0, 27, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->ref_particles);
@@ -6156,7 +5804,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_13ref_particles
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":28
+/* "pymaxion/particle_system.pyx":29
  *     cdef public list ref_goals
  *     cdef public list ref_particles
  *     cdef public ndarray particle_positions             # <<<<<<<<<<<<<<
@@ -6185,7 +5833,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particl
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->particle_positions));
   __pyx_r = ((PyObject *)__pyx_v_self->particle_positions);
@@ -6224,8 +5872,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_posi
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 28, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 29, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6268,7 +5916,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_posi
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 28, 0, __PYX_ERR(0, 28, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->particle_positions);
@@ -6287,7 +5935,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_posi
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":29
+/* "pymaxion/particle_system.pyx":30
  *     cdef public list ref_particles
  *     cdef public ndarray particle_positions
  *     cdef public ndarray particle_sum_moves             # <<<<<<<<<<<<<<
@@ -6316,7 +5964,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particl
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->particle_sum_moves));
   __pyx_r = ((PyObject *)__pyx_v_self->particle_sum_moves);
@@ -6355,8 +6003,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_sum_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 29, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 30, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6399,7 +6047,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_sum_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 29, 0, __PYX_ERR(0, 29, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->particle_sum_moves);
@@ -6418,7 +6066,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_18particle_sum_
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":30
+/* "pymaxion/particle_system.pyx":31
  *     cdef public ndarray particle_positions
  *     cdef public ndarray particle_sum_moves
  *     cdef public ndarray particle_sum_weights             # <<<<<<<<<<<<<<
@@ -6447,7 +6095,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_20particl
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->particle_sum_weights));
   __pyx_r = ((PyObject *)__pyx_v_self->particle_sum_weights);
@@ -6486,8 +6134,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_20particle_sum_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 30, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 31, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6530,7 +6178,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_20particle_sum_
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 30, 0, __PYX_ERR(0, 30, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->particle_sum_weights);
@@ -6549,7 +6197,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_20particle_sum_
   return __pyx_r;
 }
 
-/* "pymaxion/particle_system.pyx":31
+/* "pymaxion/particle_system.pyx":32
  *     cdef public ndarray particle_sum_moves
  *     cdef public ndarray particle_sum_weights
  *     cdef public ndarray particle_velocities             # <<<<<<<<<<<<<<
@@ -6578,7 +6226,7 @@ static PyObject *__pyx_pf_8pymaxion_15particle_system_14ParticleSystem_19particl
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__get__", 0);
-  __Pyx_TraceCall("__get__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
+  __Pyx_TraceCall("__get__", __pyx_f[0], 32, 0, __PYX_ERR(0, 32, __pyx_L1_error));
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(((PyObject *)__pyx_v_self->particle_velocities));
   __pyx_r = ((PyObject *)__pyx_v_self->particle_velocities);
@@ -6617,8 +6265,8 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_19particle_velo
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__set__", 0);
-  __Pyx_TraceCall("__set__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
-  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 31, __pyx_L1_error)
+  __Pyx_TraceCall("__set__", __pyx_f[0], 32, 0, __PYX_ERR(0, 32, __pyx_L1_error));
+  if (!(likely(((__pyx_v_value) == Py_None) || likely(__Pyx_TypeTest(__pyx_v_value, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 32, __pyx_L1_error)
   __pyx_t_1 = __pyx_v_value;
   __Pyx_INCREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
@@ -6661,7 +6309,7 @@ static int __pyx_pf_8pymaxion_15particle_system_14ParticleSystem_19particle_velo
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__del__", 0);
-  __Pyx_TraceCall("__del__", __pyx_f[0], 31, 0, __PYX_ERR(0, 31, __pyx_L1_error));
+  __Pyx_TraceCall("__del__", __pyx_f[0], 32, 0, __PYX_ERR(0, 32, __pyx_L1_error));
   __Pyx_INCREF(Py_None);
   __Pyx_GIVEREF(Py_None);
   __Pyx_GOTREF(__pyx_v_self->particle_velocities);
@@ -21214,6 +20862,48 @@ static int __pyx_tp_clear_8pymaxion_15particle_system_ParticleSystem(PyObject *o
   return 0;
 }
 
+static PyObject *__pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_n_goals(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_1__get__(o);
+}
+
+static int __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_n_goals(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_7n_goals_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
+static PyObject *__pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_n_particles(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_1__get__(o);
+}
+
+static int __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_n_particles(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_11n_particles_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
+static PyObject *__pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_num_iter(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_1__get__(o);
+}
+
+static int __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_num_iter(PyObject *o, PyObject *v, CYTHON_UNUSED void *x) {
+  if (v) {
+    return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_8num_iter_3__set__(o, v);
+  }
+  else {
+    PyErr_SetString(PyExc_NotImplementedError, "__del__");
+    return -1;
+  }
+}
+
 static PyObject *__pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_ref_goals(PyObject *o, CYTHON_UNUSED void *x) {
   return __pyx_pw_8pymaxion_15particle_system_14ParticleSystem_9ref_goals_1__get__(o);
 }
@@ -21303,6 +20993,9 @@ static PyMethodDef __pyx_methods_8pymaxion_15particle_system_ParticleSystem[] = 
 };
 
 static struct PyGetSetDef __pyx_getsets_8pymaxion_15particle_system_ParticleSystem[] = {
+  {(char *)"n_goals", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_n_goals, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_n_goals, (char *)0, 0},
+  {(char *)"n_particles", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_n_particles, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_n_particles, (char *)0, 0},
+  {(char *)"num_iter", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_num_iter, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_num_iter, (char *)0, 0},
   {(char *)"ref_goals", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_ref_goals, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_ref_goals, (char *)0, 0},
   {(char *)"ref_particles", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_ref_particles, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_ref_particles, (char *)0, 0},
   {(char *)"particle_positions", __pyx_getprop_8pymaxion_15particle_system_14ParticleSystem_particle_positions, __pyx_setprop_8pymaxion_15particle_system_14ParticleSystem_particle_positions, (char *)0, 0},
@@ -22249,7 +21942,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 68, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 70, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(2, 884, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 133, __pyx_L1_error)
@@ -22267,14 +21960,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "pymaxion/particle_system.pyx":70
+  /* "pymaxion/particle_system.pyx":72
  *         for i in range(self.n_particles):
  *             particle = self.ref_particles[i]
  *             self.particle_positions[i, :] = particle.position             # <<<<<<<<<<<<<<
  *             self.particle_velocities[i,:] = particle.velocity
  * 
  */
-  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 70, __pyx_L1_error)
+  __pyx_slice_ = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice_)) __PYX_ERR(0, 72, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice_);
   __Pyx_GIVEREF(__pyx_slice_);
 
@@ -22638,6 +22331,7 @@ static int __Pyx_modinit_type_init_code(void) {
   __pyx_vtable_8pymaxion_15particle_system_ParticleSystem.add_particle_to_system = (PyObject *(*)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, struct __pyx_obj_8pymaxion_8particle_Particle *, int __pyx_skip_dispatch))__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_particle_to_system;
   __pyx_vtable_8pymaxion_15particle_system_ParticleSystem.add_goal_to_system = (PyObject *(*)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, struct __pyx_obj_8pymaxion_5goals_4goal_Goal *, int __pyx_skip_dispatch))__pyx_f_8pymaxion_15particle_system_14ParticleSystem_add_goal_to_system;
   __pyx_vtable_8pymaxion_15particle_system_ParticleSystem.initialize_system = (PyObject *(*)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int __pyx_skip_dispatch))__pyx_f_8pymaxion_15particle_system_14ParticleSystem_initialize_system;
+  __pyx_vtable_8pymaxion_15particle_system_ParticleSystem.move_particle = (void (*)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice, __Pyx_memviewslice))__pyx_f_8pymaxion_15particle_system_14ParticleSystem_move_particle;
   __pyx_vtable_8pymaxion_15particle_system_ParticleSystem.solve = (PyObject *(*)(struct __pyx_obj_8pymaxion_15particle_system_ParticleSystem *, int __pyx_skip_dispatch, struct __pyx_opt_args_8pymaxion_15particle_system_14ParticleSystem_solve *__pyx_optional_args))__pyx_f_8pymaxion_15particle_system_14ParticleSystem_solve;
   if (PyType_Ready(&__pyx_type_8pymaxion_15particle_system_ParticleSystem) < 0) __PYX_ERR(0, 21, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
