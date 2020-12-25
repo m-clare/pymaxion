@@ -13,7 +13,7 @@ cdef class Bar(Goal):
         self.goal_n_particles = 2
 
     def __init__(Bar self, double E, double A,
-                 double initial_length, list p_index):
+                 double initial_length, list p_index=[]):
         self.initial_length = initial_length
         self.E = E
         self.A = A

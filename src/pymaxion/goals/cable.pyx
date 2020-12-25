@@ -13,7 +13,7 @@ cdef class Cable(Goal):
         self.goal_n_particles = 2
 
     def __init__(Cable self, double E, double A,
-                 double rest_length, list p_index):
+                 double rest_length, list p_index=[]):
         self.E = E
         self.A = A
         self.rest_length = rest_length

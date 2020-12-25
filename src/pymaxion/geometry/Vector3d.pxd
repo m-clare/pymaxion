@@ -1,6 +1,6 @@
 cdef extern from "Vector3d.cpp":
    pass
-
+   
 cdef extern from "Vector3d.h" namespace "geometry":
     cdef cppclass Vector3d nogil:
         double x, y, z

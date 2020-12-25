@@ -54,10 +54,20 @@ cdef class ParticleSystem(object):
         self.n_particles += 1
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
+        # Check if goal already has particle indices
         self.ref_goals.append(goal)
         self.n_goals += 1
 
+    cpdef find_particle_index(ParticleSystem self):
+        pass
+
+    cpdef assign_particle_index(ParticleSystem self):
+        pass
+
     cpdef initialize_system(ParticleSystem self):
+        '''
+        Initialize matrices for vector solve
+        '''
         cdef int i
         self.particle_positions   = np.zeros((self.n_particles, 3),
                                             dtype=np.double)
@@ -75,6 +85,9 @@ cdef class ParticleSystem(object):
     cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,
                             double[:] p_weights, double[:, :] p_pos,
                             double[:, :] p_vel) nogil:
+        '''
+        Global move for particles once local solve completed
+        '''
         cdef double nx, ny, nz
         cdef double vx, vy, vz
         cdef Vector3d p_sum
@@ -105,6 +118,18 @@ cdef class ParticleSystem(object):
         p_vel[j, 1] = vy
         p_vel[j, 2] = vz
 
+    cpdef finalize_system(ParticleSystem self):
+        '''
+        Update particle objects with their new positions
+        '''
+        for i in range(self.n_particles):
+            matrix_pos = self.particle_positions[i]
+            current_particle = self.ref_particles[i]
+            current_particle.position.x = matrix_pos[0]
+            current_particle.position.y = matrix_pos[1]
+            current_particle.position.z = matrix_pos[2]
+
+
     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
         cdef int i
         cdef int j
@@ -130,6 +155,9 @@ cdef class ParticleSystem(object):
                 break
             # release GIL for parallel constraint solve
             with nogil:
+                '''
+                System local goal solve
+                '''
                 if parallel:
                     for j in prange(self.n_goals):
                         (<Goal?>self.goals[j]).calculate(p_pos)
@@ -137,7 +165,6 @@ cdef class ParticleSystem(object):
                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
                 else:
                     for j in range(self.n_goals):
-                        # Can casting check for safety be moved to ref goal loading?
                         (<Goal?>self.goals[j]).calculate(p_pos)
                     for j in range(self.n_goals):
                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
@@ -152,7 +179,7 @@ cdef class ParticleSystem(object):
                 v_sum = v_sum / self.n_particles
                 if v_sum < ke:
                     flag = True
-                    # reset moves and weights
+                # reset moves and weights
                 self.num_iter+= 1
                 p_weights[:] = 0.0
                 p_moves[:, :] = 0.0
