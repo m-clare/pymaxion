@@ -18,7 +18,7 @@ test_cable_taut = Cable(E, A, rest_length_taut, [0, 1])
 test_cable_slack = Cable(E, A, rest_length_slack, [0, 1])
 
 ppos = helpers.create_2d_mv(initial_positions)
-pp_sum = helpers.create_2d_mv(p_sum)
+pp_sum = helpers.create_2d_mv(p_sum)b
 strength = helpers.create_1d_mv(w_sum)
 print(p_sum)
 print(w_sum)

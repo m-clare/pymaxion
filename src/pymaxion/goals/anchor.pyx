@@ -53,15 +53,10 @@ cdef class Anchor(Goal):
         anchor_pt = self.anchor_pt[0].at(0)
         return anchor_pt.x, anchor_pt.y, anchor_pt.z
 
-    # @staticmethod
-    # cdef Anchor anchor_from_Point3d(Point3d pt, double strength, list p_index=[]):
-    #     cdef Anchor anchor = Anchor.__new__(Anchor)
-    #     anchor.anchor_pt.push_back(pt)
-    #     anchor.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
-    #     anchor.strength.push_back(strength)
-    #     for ind in p_index:
-    #         anchor.particle_index.push_back(ind)
-    #     return anchor 
-
-        
-
+    @staticmethod
+    cdef Anchor anchor_from_Point3d(Point3d pt, double strength):
+        cdef Anchor anchor = Anchor.__new__(Anchor)
+        anchor.anchor_pt.push_back(pt)
+        anchor.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
+        anchor.strength.push_back(strength)
+        return anchor 
