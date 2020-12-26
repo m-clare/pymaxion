@@ -9,7 +9,7 @@ cdef extern from "Point3d.h" namespace "geometry":
     Point3d() except +
     Point3d(double x, double y, double z) except +
     Point3d(const Vector3d v) except +
-    void move_point(double x, double y, double z)
-    void move_point(const Vector3d v)
-    void set_point(double x, double y, double z)
-    void set_point(const Vector3d v)
+    void move(double x, double y, double z)
+    void move(const Vector3d v)
+    void set_position(double x, double y, double z)
+    void set_position(const Vector3d v)

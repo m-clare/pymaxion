@@ -6,21 +6,22 @@
 # cython: language_level = 3
 
 from pymaxion.geometry.Vector3d cimport Vector3d
+from pymaxion.geometry.Point3d cimport Point3d
 from libc.stdlib cimport free
 
 cdef class Particle(object):
 
     def __cinit__(Particle self):
-        self.position = new Vector3d()
-        self.start_position = new Vector3d()
+        self.position = new Point3d()
+        self.start_position = new Point3d()
         self.sum_moves = new Vector3d()
         self.velocity = new Vector3d()
         self.sum_weights = 0.0
         self.system_index = 0 # index is 0 until particle is added to a system
 
     def __init__(Particle self, double x, double y, double z):
-        self.position.set_value(x, y, z)
-        self.start_position.set_value(x, y, z)
+        self.position.set_position(x, y, z)
+        self.start_position.set_position(x, y, z)
         self.sum_moves.set_value(0, 0, 0)
         self.velocity.set_value(0, 0, 0)
 

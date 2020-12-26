@@ -82,7 +82,7 @@ cdef class ParticleSystem(object):
             self.particle_positions[i, :] = particle.position
             self.particle_velocities[i,:] = particle.velocity
 
-    cdef void move_particle(ParticleSystem self, int j, double[:, :] p_moves,
+    cdef void move_particles(ParticleSystem self, int j, double[:, :] p_moves,
                             double[:] p_weights, double[:, :] p_pos,
                             double[:, :] p_vel) nogil:
         '''
@@ -125,11 +125,9 @@ cdef class ParticleSystem(object):
         for i in range(self.n_particles):
             matrix_pos = self.particle_positions[i]
             current_particle = self.ref_particles[i]
-            current_particle.position.x = matrix_pos[0]
-            current_particle.position.y = matrix_pos[1]
-            current_particle.position.z = matrix_pos[2]
-
-
+            cx, cy, cz = matrix_pos[0], matrix_pos[1], matrix_pos[2]
+            current_particle.move(cx, cy, cz) 
+            
     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
         cdef int i
         cdef int j
@@ -170,7 +168,7 @@ cdef class ParticleSystem(object):
                         (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
                 # move the particles
                 for j in range(self.n_particles):
-                    self.move_particle(j, p_moves, p_weights, p_pos, p_vel)
+                    self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
                 v_sum = 0.0
                 for j in range(self.n_particles):
                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \

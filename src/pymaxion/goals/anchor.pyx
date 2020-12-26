@@ -22,8 +22,8 @@ cdef class Anchor(Goal):
 
         # initialize vectors
         self.anchor_pt.push_back(Point3d(anchor_pt[0],
-                                          anchor_pt[1],
-                                          anchor_pt[2]))
+                                         anchor_pt[1],
+                                         anchor_pt[2]))
 
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
 

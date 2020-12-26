@@ -10,10 +10,10 @@ namespace geometry {
     Point3d(double x, double y, double z);
     Point3d(const Vector3d v);
     ~Point3d();
-    void move_point(double x, double y, double z);
-    void move_point(const Vector3d v);
-    void set_point(double x, double y, double z);
-    void set_point(const Vector3d v);
+    void move(double x, double y, double z);
+    void move(const Vector3d v);
+    void set_position(double x, double y, double z);
+    void set_position(const Vector3d v);
   };
 }
 
