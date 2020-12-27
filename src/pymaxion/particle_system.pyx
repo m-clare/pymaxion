@@ -17,6 +17,9 @@ from pymaxion.goals.goal cimport Goal
 from pymaxion.goals.anchor cimport Anchor
 from pymaxion.particle cimport Particle
 from pymaxion.geometry.Vector3d cimport Vector3d
+from pymaxion.geometry.Point3d cimport Point3d
+from pymaxion.helpers cimport pt_within_tolerance
+from pymaxion.helpers import pos_within_tolerance
 
 cdef class ParticleSystem(object):
     cdef public int n_goals
@@ -26,6 +29,7 @@ cdef class ParticleSystem(object):
     cdef PyObject **particles
     cdef public list ref_goals
     cdef public list ref_particles
+    cdef public list ref_positions
     cdef public ndarray particle_positions
     cdef public ndarray particle_sum_moves
     cdef public ndarray particle_sum_weights
@@ -41,7 +45,7 @@ cdef class ParticleSystem(object):
     def __init__(ParticleSystem self):
         self.ref_goals = []
         self.ref_particles = []
-
+        self.ref_positions = []
     def __dealloc__(ParticleSystem self):
         if self.goals != NULL:
             free(self.goals)
@@ -49,17 +53,43 @@ cdef class ParticleSystem(object):
             free(self.particles)
 
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
-        particle.system_index = self.n_particles
-        self.ref_particles.append(particle)
-        self.n_particles += 1
+        # particle.system_index = self.n_particles
+        # Check if particle position already exists in system
+        # Should particles be able to exist in the system
+        # at the start that are in the same position?
+        # need better helper method for retrieving position...
+        pos = (particle.position[0].x, particle.position[0].y, particle.position[0].z)
+        p_ind = self.find_particle_index(pos)
+        if p_ind is None:
+            self.ref_particles.append(particle)
+            self.ref_positions.append(pos)
+            self.n_particles = self.n_particles + 1
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
         # Check if goal already has particle indices
         self.ref_goals.append(goal)
         self.n_goals += 1
 
-    cpdef find_particle_index(ParticleSystem self):
-        pass
+    # cdef void test_particle(ParticleSystem self):
+        # cdef PyObject* 
+        # test = self.ref_particles[0]
+        # cdef Point3d* test2 = <Point3d*>test.position
+        # test = pt0[0]
+        # pt0 = <Point3d?>self.ref_particles[0].position
+        # pt0 = self.ref_particles[0].position
+        # pt0_pos = <Particle?>pt0.position
+        # pt1 = <Point3d?>self.ref_particles[1].position
+        # pt1_pos = 
+        # test = pt_within_tolerance(pt0, pt1, tol=0.01)
+        # print(test)
+        # pass
+
+    cpdef find_particle_index(ParticleSystem self, tuple pos):
+        for i, e in enumerate(self.ref_positions):
+            if pos_within_tolerance(e, pos):
+                return i
+            else:
+                return
 
     cpdef assign_particle_index(ParticleSystem self):
         pass
@@ -86,7 +116,7 @@ cdef class ParticleSystem(object):
                             double[:] p_weights, double[:, :] p_pos,
                             double[:, :] p_vel) nogil:
         '''
-        Global move for particles once local solve completed
+        Global move for particles once lo cal solve completed
         '''
         cdef double nx, ny, nz
         cdef double vx, vy, vz
@@ -126,7 +156,7 @@ cdef class ParticleSystem(object):
             matrix_pos = self.particle_positions[i]
             current_particle = self.ref_particles[i]
             cx, cy, cz = matrix_pos[0], matrix_pos[1], matrix_pos[2]
-            current_particle.move(cx, cy, cz) 
+            current_particle.set_position(cx, cy, cz) 
             
     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000, bint parallel=False):
         cdef int i

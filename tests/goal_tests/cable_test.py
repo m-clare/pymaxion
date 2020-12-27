@@ -1,5 +1,5 @@
 from pymaxion.goals.cable import Cable
-import pymaxion.goals.helpers as helpers
+import pymaxion.helpers as helpers
 from numpy import pi
 from numpy import array
 from numpy import double
@@ -18,19 +18,19 @@ test_cable_taut = Cable(E, A, rest_length_taut, [0, 1])
 test_cable_slack = Cable(E, A, rest_length_slack, [0, 1])
 
 ppos = helpers.create_2d_mv(initial_positions)
-pp_sum = helpers.create_2d_mv(p_sum)b
+pp_sum = helpers.create_2d_mv(p_sum)
 strength = helpers.create_1d_mv(w_sum)
 print(p_sum)
 print(w_sum)
 
 print(test_cable_taut.goal_n_particles)
-test_cable_taut.p_calculate(ppos)
-test_cable_taut.p_sum_moves(pp_sum, strength)
-print(p_sum)
-print(w_sum)
+# test_cable_taut.pcalculate(ppos)
+# test_cable_taut.p_sum_moves(pp_sum, strength)
+# print(p_sum)
+# print(w_sum)
 
-test_cable_taut.pcalculate(ppos)
-test_cable_slack.pcalculate(ppos)
+test_cable_taut.py_calculate(ppos)
+test_cable_slack.py_calculate(ppos)
 # print(test_cable_taut.move_vectors)
 # print(test_cable_taut.strength)
 # print(test_cable_slack.move_vectors)
