@@ -12,9 +12,8 @@ cdef class Bar(Goal):
     def __cinit__(Bar self):
         self.goal_n_particles = 2
 
-    def __init__(Bar self, double E, double A,
-                 list particles=[], double initial_length=0.0,
-                 list p_index=[]):
+    def __init__(Bar self, double E, double A, double initial_length=0.0,
+                 list particles=[], list p_index=[]):
 
         self.E = E
         self.A = A

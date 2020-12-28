@@ -15,10 +15,8 @@ cdef class Anchor(Goal):
         self.goal_n_particles = 1
         self.anchor_pt = new vector[Point3d]()
 
-    def __init__(Anchor self,
-                 list anchor_pt,
-                 double strength=1.0,
-                 list p_index=[]):
+    def __init__(Anchor self, list anchor_pt, double strength=1.0,
+                 list particles=[], list p_index=[]):
 
         self.particles.push_back(Point3d(anchor_pt[0],
                                          anchor_pt[1],

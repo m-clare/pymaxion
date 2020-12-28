@@ -10,6 +10,7 @@ import numpy as np
 from cpython cimport PyObject
 from cython.parallel import parallel, prange
 from libc.stdlib cimport malloc, free
+from libcpp.vector cimport vector
 from numpy cimport ndarray
 from libc.stdio cimport printf
 
@@ -27,6 +28,7 @@ cdef class ParticleSystem(object):
     cdef public int num_iter
     cdef PyObject **goals
     cdef PyObject **particles
+    cdef vector[Point3d] *initial_positions
     cdef public list ref_goals
     cdef public list ref_particles
     cdef public list ref_positions
@@ -54,49 +56,53 @@ cdef class ParticleSystem(object):
 
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
         # Check if particle position already exists in system
-        # Should particles be able to exist in the system
-        # at the start that are in the same position?
-        # need better helper method for retrieving position...
-        pos = particle.position[0]
-        p_ind = self.find_particle_index((pos.x, pos.y, pos.z))
+        p_ind = self.find_particle_index(particle)
         if p_ind is None:
-            particle.system_index = self.n_particles
+            pos = particle.position[0]
             self.ref_particles.append(particle)
             self.ref_positions.append((pos.x, pos.y, pos.z))
-            self.n_particles = self.n_particles + 1
+            p_ind = self.assign_particle_index(particle)
+        return p_ind
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
-        # Check if goal already has particle indices
-        particle_index = goal.particle_index[0]
-        # Check if particle index is valid?
-        # This only checks if the particle index vector is empty/underfilled
-        if particle_index.size() < goal.goal_n_particles:
-            
+        particles = goal.particles[0]
+        for i in range(goal.goal_n_particles):
+            pt = <Point3d?>particles[i]
+            particle = Particle(pt.x, pt.y, pt.z)
+            p_ind = self.find_particle_index(particle)
+            if p_ind is None:
+                self.ref_particles.append(particle)
+                pos = particle.position[0]
+                self.ref_positions.append((pos.x, pos.y, pos.z))
+                p_ind = self.assign_particle_index(particle)
+            goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
         self.n_goals += 1
-
-    # cdef void test_particle(ParticleSystem self):
-    # Place method for eventually handling cpp objects
-        # cdef PyObject* 
+    # cdef void test_particle(particlesystem self):
+    # place method for eventually handling cpp objects
+        # cdef pyobject* 
         # test = self.ref_particles[0]
-        # cdef Point3d* test2 = <Point3d*>test.position
+        # cdef point3d* test2 = <point3d*>test.position
         # test = pt0[0]
-        # pt0 = <Point3d?>self.ref_particles[0].position
+        # pt0 = <point3d?>self.ref_particles[0].position
         # pt0 = self.ref_particles[0].position
-        # pt0_pos = <Particle?>pt0.position
-        # pt1 = <Point3d?>self.ref_particles[1].position
+        # pt0_pos = <particle?>pt0.position
+        # pt1 = <point3d?>self.ref_particles[1].position
         # pt1_pos = 
         # test = pt_within_tolerance(pt0, pt1, tol=0.01)
         # print(test)
         # pass
 
-    cpdef find_particle_index(ParticleSystem self, tuple pos):
+    cpdef find_particle_index(ParticleSystem self, Particle particle):
+        pos = particle.position[0]
         for i, e in enumerate(self.ref_positions):
-            if pos_within_tolerance(e, pos):
+            if pos_within_tolerance(e, (pos.x, pos.y, pos.z)):
                 return i
 
-    cpdef assign_particle_index(ParticleSystem self):
-        pass
+    cpdef assign_particle_index(ParticleSystem self, Particle particle):
+        particle.system_index = self.n_particles # zero indexed
+        self.n_particles = self.n_particles + 1
+        return particle.system_index
 
     cpdef initialize_system(ParticleSystem self):
         '''
