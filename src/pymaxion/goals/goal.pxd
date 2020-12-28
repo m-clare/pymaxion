@@ -1,8 +1,10 @@
 from libcpp.vector cimport vector
 from pymaxion.geometry.Vector3d cimport Vector3d
+from pymaxion.geometry.Point3d cimport Point3d
 
 cdef class Goal:
     cdef public int goal_n_particles
+    cdef vector[Point3d] *particles
     cdef vector[int] *particle_index
     cdef vector[Vector3d] *move_vectors
     cdef vector[double] *weighting

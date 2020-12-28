@@ -1,6 +1,6 @@
 from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
-
+from pymaxon
 psystem = ParticleSystem()
 
 pt0 = Particle(1, 1, 1)

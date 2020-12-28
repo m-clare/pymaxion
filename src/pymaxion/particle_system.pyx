@@ -53,24 +53,30 @@ cdef class ParticleSystem(object):
             free(self.particles)
 
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
-        # particle.system_index = self.n_particles
         # Check if particle position already exists in system
         # Should particles be able to exist in the system
         # at the start that are in the same position?
         # need better helper method for retrieving position...
-        pos = (particle.position[0].x, particle.position[0].y, particle.position[0].z)
-        p_ind = self.find_particle_index(pos)
+        pos = particle.position[0]
+        p_ind = self.find_particle_index((pos.x, pos.y, pos.z))
         if p_ind is None:
+            particle.system_index = self.n_particles
             self.ref_particles.append(particle)
-            self.ref_positions.append(pos)
+            self.ref_positions.append((pos.x, pos.y, pos.z))
             self.n_particles = self.n_particles + 1
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
         # Check if goal already has particle indices
+        particle_index = goal.particle_index[0]
+        # Check if particle index is valid?
+        # This only checks if the particle index vector is empty/underfilled
+        if particle_index.size() < goal.goal_n_particles:
+            
         self.ref_goals.append(goal)
         self.n_goals += 1
 
     # cdef void test_particle(ParticleSystem self):
+    # Place method for eventually handling cpp objects
         # cdef PyObject* 
         # test = self.ref_particles[0]
         # cdef Point3d* test2 = <Point3d*>test.position
@@ -88,8 +94,6 @@ cdef class ParticleSystem(object):
         for i, e in enumerate(self.ref_positions):
             if pos_within_tolerance(e, pos):
                 return i
-            else:
-                return
 
     cpdef assign_particle_index(ParticleSystem self):
         pass

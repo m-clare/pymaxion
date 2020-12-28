@@ -13,6 +13,7 @@ cdef class Goal(object):
 
     def __cinit__(Goal self):
         self.particle_index = new vector[int]()
+        self.particles = new vector[Point3d]()
         self.move_vectors = new vector[Vector3d]()
         self.weighting = new vector[double]()
         self.strength = new vector[double]()

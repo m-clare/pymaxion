@@ -12,4 +12,4 @@ cdef extern from "Point3d.h" namespace "geometry":
     void move(double x, double y, double z)
     void move(const Vector3d v)
     void set_position(double x, double y, double z)
-    void set_positio(const Vector3d v)
+    void set_position(const Vector3d v)

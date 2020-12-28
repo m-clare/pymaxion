@@ -13,18 +13,16 @@ cdef class Cable(Goal):
         self.goal_n_particles = 2
 
     def __init__(Cable self, double E, double A,
-                 double rest_length, list p_index=[]):
+                 list particles=[], double rest_length=0.0,
+                 list p_index=[]):
         self.E = E
         self.A = A
         self.rest_length = rest_length
 
-        # Set rest length to initial if not provided
-        # if rest_length == None:
-        # how should I pass current particle positions? different class method maybe?
-
         # initialize vectors
-        for ind in p_index:
-            self.particle_index.push_back(ind)
+        if p_index:
+            for ind in p_index:
+                self.particle_index.push_back(ind)
 
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))

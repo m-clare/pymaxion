@@ -6,5 +6,5 @@ cdef class Anchor(Goal):
     cdef vector[Point3d] *anchor_pt
 
     @staticmethod
-    cdef Anchor anchor_from_Point3d(Point3d pt, double strength)
+    cdef Anchor from_Point3d(Point3d pt, double strength)
 
