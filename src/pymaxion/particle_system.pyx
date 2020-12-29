@@ -26,6 +26,7 @@ cdef class ParticleSystem(object):
     cdef public int n_goals
     cdef public int n_particles
     cdef public int num_iter
+    cdef public double tol
     cdef PyObject **goals
     cdef PyObject **particles
     cdef vector[Point3d] *initial_positions
@@ -44,10 +45,12 @@ cdef class ParticleSystem(object):
         self.n_particles = 0
         self.num_iter = 0
 
-    def __init__(ParticleSystem self):
+    def __init__(ParticleSystem self, tol=1e-2):
         self.ref_goals = []
         self.ref_particles = []
         self.ref_positions = []
+        self.tol = tol
+
     def __dealloc__(ParticleSystem self):
         if self.goals != NULL:
             free(self.goals)
@@ -94,7 +97,7 @@ cdef class ParticleSystem(object):
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
         for i, e in enumerate(self.ref_positions):
-            if pos_within_tolerance(e, (pos.x, pos.y, pos.z)):
+            if pos_within_tolerance(e, (pos.x, pos.y, pos.z), self.tol):
                 return i
 
     cpdef assign_particle_index(ParticleSystem self, Particle particle):

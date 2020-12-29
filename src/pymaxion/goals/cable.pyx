@@ -12,8 +12,8 @@ cdef class Cable(Goal):
     def __cinit__(Cable self):
         self.goal_n_particles = 2
 
-    def __init__(Cable self, double E, double A,
-                 double rest_length=0.0, list particles=[],
+    def __init__(Cable self, list particles,
+                 double E, double A, double rest_length=0.0,
                  list p_index=[]):
         self.E = E
         self.A = A

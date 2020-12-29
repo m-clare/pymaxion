@@ -12,8 +12,8 @@ cdef class Force(Goal):
     def __cinit__(Force self):
         self.goal_n_particles = 1
 
-    def __init__(Force self, list force_vector,
-                 list particles=[], list p_index=[]):
+    def __init__(Force self, list particles,
+                 list force_vector, list p_index=[]):
         
         self.move_vectors.push_back(Vector3d(force_vector[0],
                                              force_vector[1],

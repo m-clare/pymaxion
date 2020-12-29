@@ -12,9 +12,10 @@ cdef class Rod(Goal):
     def __cinit__(Rod self):
         self.goal_n_particles = 4
 
-    def __init__(Rod self, double E, double inertia,
+    def __init__(Rod self, list particles,
+                 double E, double inertia,
                  double z_distance, double rest_angle,
-                 list particles=[], list p_index=[]):
+                 list p_index=[]):
 
         self.E = E
         self.inertia = inertia
