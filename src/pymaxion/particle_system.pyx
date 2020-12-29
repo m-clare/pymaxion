@@ -65,15 +65,13 @@ cdef class ParticleSystem(object):
         return p_ind
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
-        particles = goal.particles[0]
-        for i in range(goal.goal_n_particles):
-            pt = <Point3d?>particles[i]
-            particle = Particle(pt.x, pt.y, pt.z)
+        particles = goal.particles
+        for particle in particles:
             p_ind = self.find_particle_index(particle)
             if p_ind is None:
                 self.ref_particles.append(particle)
-                pos = particle.position[0]
-                self.ref_positions.append((pos.x, pos.y, pos.z))
+                pos = particle.position
+                self.ref_positions.append((pos[0], pos[1], pos[2]))
                 p_ind = self.assign_particle_index(particle)
             goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
