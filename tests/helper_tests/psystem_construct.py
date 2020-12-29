@@ -2,6 +2,7 @@ from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
 from pymaxion.goals.anchor import Anchor
 from pymaxion.goals.cable import Cable
+from pymaxion.goals.goal import Goal
 # from pymaxion.goals.force import Force
 
 
@@ -29,9 +30,10 @@ print(system_2.ref_particles)
 
 # System with 2 original particles,
 # one added unique Anchor, one existing Anchor
-a1 = Anchor([pt2], strength=1e10)
-# print(type(a1.particles))
-# a2 = Anchor([0, 0, 0], strength=1e10)
+g1 = Goal([pt1])
+print(g1.particles)
+print(g1.particles[0].sum_weights)
+a1 = Anchor([pt2], strength=1e10)# print(type(a1.particles))# a2 = Anchor([0, 0, 0], strength=1e10)
 # plist_3 = [pt0, pt1]
 # glist_3 = [a1, a2]
 # system_3 = ParticleSystem()

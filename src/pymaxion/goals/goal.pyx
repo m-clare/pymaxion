@@ -27,7 +27,7 @@ cdef class Goal(object):
                 raise TypeError
             else:
                 self.particles.append(particle)
-
+x
     def __dealloc__(self):
         if self.particle_index != NULL:
             free(self.particle_index)
