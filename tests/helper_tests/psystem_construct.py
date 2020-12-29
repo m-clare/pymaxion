@@ -30,10 +30,10 @@ print(system_2.ref_particles)
 
 # System with 2 original particles,
 # one added unique Anchor, one existing Anchor
-g1 = Goal([pt1])
+g1 = Goal([pt0, 0])
 print(g1.particles)
 print(g1.particles[0].sum_weights)
-a1 = Anchor([pt2], strength=1e10)# print(type(a1.particles))# a2 = Anchor([0, 0, 0], strength=1e10)
+# a1 = Anchor([pt2], strength=1e10)# print(type(a1.particles))# a2 = Anchor([0, 0, 0], strength=1e10)
 # plist_3 = [pt0, pt1]
 # glist_3 = [a1, a2]
 # system_3 = ParticleSystem()

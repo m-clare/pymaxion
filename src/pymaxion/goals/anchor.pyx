@@ -19,15 +19,6 @@ cdef class Anchor(Goal):
     def __init__(Anchor self, list particles, double strength=1.0,
                  list anchor_pt=[], list p_index=[]):
 
-        # super().__init__(particles)
-        self.particles = []
-
-        for particle in particles:
-            if not isinstance(particle, Particle):
-                raise TypeError
-            else:
-                self.particles.append(particle)
-
         # initialize vectors
         self.anchor_pt.push_back(Point3d(anchor_pt[0],
                                          anchor_pt[1],

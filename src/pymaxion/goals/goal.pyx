@@ -24,10 +24,10 @@ cdef class Goal(object):
 
         for particle in particles:
             if not isinstance(particle, Particle):
-                raise TypeError
+                raise TypeError("Goal must be applied to a particle!")
             else:
                 self.particles.append(particle)
-x
+
     def __dealloc__(self):
         if self.particle_index != NULL:
             free(self.particle_index)
