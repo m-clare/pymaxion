@@ -28,10 +28,10 @@ cdef class ParticleSystem(object):
     cdef public int num_iter
     cdef PyObject **goals
     cdef PyObject **particles
-    cdef vector[Point3d] *initial_positions
     cdef public list ref_goals
     cdef public list ref_particles
     cdef public list ref_positions
+    cdef public double tolerance
     cdef public ndarray particle_positions
     cdef public ndarray particle_sum_moves
     cdef public ndarray particle_sum_weights
@@ -44,10 +44,12 @@ cdef class ParticleSystem(object):
         self.n_particles = 0
         self.num_iter = 0
 
-    def __init__(ParticleSystem self):
+    def __init__(ParticleSystem self, tol=1e-2):
         self.ref_goals = []
         self.ref_particles = []
         self.ref_positions = []
+        self.tolerance = tol # merge particles closer than this
+
     def __dealloc__(ParticleSystem self):
         if self.goals != NULL:
             free(self.goals)
@@ -65,38 +67,21 @@ cdef class ParticleSystem(object):
         return p_ind
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
-        particles = goal.particles[0]
-        for i in range(goal.goal_n_particles):
-            pt = <Point3d?>particles[i]
-            particle = Particle(pt.x, pt.y, pt.z)
+        for particle in goal.particles:
             p_ind = self.find_particle_index(particle)
             if p_ind is None:
                 self.ref_particles.append(particle)
-                pos = particle.position[0]
-                self.ref_positions.append((pos.x, pos.y, pos.z))
+                pos = particle.position
+                self.ref_positions.append(pos)
                 p_ind = self.assign_particle_index(particle)
             goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
         self.n_goals += 1
-    # cdef void test_particle(particlesystem self):
-    # place method for eventually handling cpp objects
-        # cdef pyobject* 
-        # test = self.ref_particles[0]
-        # cdef point3d* test2 = <point3d*>test.position
-        # test = pt0[0]
-        # pt0 = <point3d?>self.ref_particles[0].position
-        # pt0 = self.ref_particles[0].position
-        # pt0_pos = <particle?>pt0.position
-        # pt1 = <point3d?>self.ref_particles[1].position
-        # pt1_pos = 
-        # test = pt_within_tolerance(pt0, pt1, tol=0.01)
-        # print(test)
-        # pass
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
         for i, e in enumerate(self.ref_positions):
-            if pos_within_tolerance(e, (pos.x, pos.y, pos.z)):
+            if pos_within_tolerance(e, (pos.x, pos.y, pos.z), self.tolerance):
                 return i
 
     cpdef assign_particle_index(ParticleSystem self, Particle particle):
@@ -174,7 +159,7 @@ cdef class ParticleSystem(object):
         cdef bint flag
         cdef double v_sum
 
-        # assemble position matrix
+        # assemble position matrix - set flag so this only happens if initial??
         self.initialize_system()
         flag = False
         self.num_iter = 0

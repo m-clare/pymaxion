@@ -7,20 +7,25 @@
 
 from libc.stdlib cimport free
 from pymaxion.geometry.Vector3d cimport Vector3d
+from pymaxion.particle import Particle
 import numpy as np
 
 cdef class Goal(object):
 
     def __cinit__(Goal self):
         self.particle_index = new vector[int]()
-        self.particles = new vector[Point3d]()
         self.move_vectors = new vector[Vector3d]()
         self.weighting = new vector[double]()
         self.strength = new vector[double]()
         self.goal_n_particles = 1 # min particle number
 
-    def __init__(Goal self):
-        pass
+    def __init__(Goal self, particles=[]):
+        self.particles = []
+
+        for particle in particles:
+            self.particles.append(Particle(particle[0],
+                                           particle[1],
+                                           particle[2]))
 
     def __dealloc__(self):
         if self.particle_index != NULL:
