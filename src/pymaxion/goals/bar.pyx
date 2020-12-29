@@ -18,12 +18,7 @@ cdef class Bar(Goal):
         self.E = E
         self.A = A
         self.initial_length = initial_length
-        # self.particles = []
 
-        # for particle in particles:
-            # self.particles.append(Particle(particle[0],
-                                           # particle[1],
-                                           # particle[2]))
         if p_index:
             for ind in p_index:
                 self.particle_index.push_back(ind)
