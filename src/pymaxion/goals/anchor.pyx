@@ -7,7 +7,7 @@
 
 from pymaxion.geometry.Vector3d cimport Vector3d
 from pymaxion.geometry.Point3d cimport Point3d
-from pymaxion.particle import Particle
+# from pymaxion.particle cimport Particle
 from libc.stdlib cimport free
 
 cdef class Anchor(Goal):
@@ -16,8 +16,15 @@ cdef class Anchor(Goal):
         self.goal_n_particles = 1
         self.anchor_pt = new vector[Point3d]()
 
-    def __init__(Anchor self, list particles, double strength=1.0,
+    def __init__(Anchor self, list particles=[], double strength=1.0,
                  list anchor_pt=[], list p_index=[]):
+        # self.particles = []
+
+        # for particle in particles:
+        #     if not isinstance(particle, Particle):
+        #         raise TypeError("Goal must be applied to a particle!")
+        #     else:
+        #         self.particles.append(particle)
 
         # initialize vectors
         self.anchor_pt.push_back(Point3d(anchor_pt[0],
@@ -61,8 +68,8 @@ cdef class Anchor(Goal):
         anchor.strength.push_back(strength)
         return anchor
 
-    @classmethod
-    def from_point(cls, list pt, double strength=1.0):
-        particle = Particle(pt)
-        anchor = cls([particle], strength)
-        return anchor
+    # @classmethod
+    # def from_point(cls, list pt, double strength=1.0):
+    #     particle = Particle(pt)
+    #     anchor = cls([particle], strength)
+    #     return anchor

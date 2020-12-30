@@ -68,8 +68,7 @@ cdef class ParticleSystem(object):
         return p_ind
 
     cpdef add_goal_to_system(ParticleSystem self, Goal goal):
-        particles = goal.particles
-        for particle in particles:
+        for particle in goal.particles:
             p_ind = self.find_particle_index(particle)
             if p_ind is None:
                 self.ref_particles.append(particle)
@@ -79,20 +78,6 @@ cdef class ParticleSystem(object):
             goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
         self.n_goals += 1
-    # cdef void test_particle(particlesystem self):
-    # place method for eventually handling cpp objects
-        # cdef pyobject* 
-        # test = self.ref_particles[0]
-        # cdef point3d* test2 = <point3d*>test.position
-        # test = pt0[0]
-        # pt0 = <point3d?>self.ref_particles[0].position
-        # pt0 = self.ref_particles[0].position
-        # pt0_pos = <particle?>pt0.position
-        # pt1 = <point3d?>self.ref_particles[1].position
-        # pt1_pos = 
-        # test = pt_within_tolerance(pt0, pt1, tol=0.01)
-        # print(test)
-        # pass
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
@@ -102,6 +87,7 @@ cdef class ParticleSystem(object):
 
     cpdef assign_particle_index(ParticleSystem self, Particle particle):
         particle.system_index = self.n_particles # zero indexed
+
         self.n_particles = self.n_particles + 1
         return particle.system_index
 

@@ -18,6 +18,7 @@ def scandir(dir, files=[]):
 
 def makeExtension(extName):
     extPath = extName.replace(".", os.path.sep) + ".pyx"
+    print(extName)
     return Extension(
         name=extName,
         sources=[extPath],
@@ -35,8 +36,11 @@ geo_include = os.path.abspath("./pymaxion/geometry")
 
 extNames = scandir("pymaxion")
 
+
 # build up set of Extension objects
 extensions = [makeExtension(name) for name in extNames]
+print(len(extensions))
+
 
 for e in extensions:
     e.cython_directives = {'language_level': "3"}

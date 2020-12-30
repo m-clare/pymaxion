@@ -7,7 +7,7 @@
 
 from libc.stdlib cimport free
 from pymaxion.geometry.Vector3d cimport Vector3d
-from pymaxion.particle import Particle
+from pymaxion.particle cimport Particle
 import numpy as np
 
 cdef class Goal(object):
@@ -19,14 +19,15 @@ cdef class Goal(object):
         self.strength = new vector[double]()
         self.goal_n_particles = 1 # min particle number
 
-    def __init__(Goal self, list particles=[]):
-        self.particles = []
+    def __init__(Goal self):
+        # self.particles = []
 
-        for particle in particles:
-            if not isinstance(particle, Particle):
-                raise TypeError("Goal must be applied to a particle!")
-            else:
-                self.particles.append(particle)
+        # for particle in particles:
+            # if not isinstance(particle, Particle):
+                # raise TypeError("Goal must be applied to a particle!")
+            # else:
+                # self.particles.append(particle)
+        pass
 
     def __dealloc__(self):
         if self.particle_index != NULL:
