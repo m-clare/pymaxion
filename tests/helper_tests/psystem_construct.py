@@ -7,9 +7,9 @@ from pymaxion.goals.force import Force
 
 from numpy import pi
 
-# pt0 = Particle(0, 0, 0)
-# pt1 = Particle(0, 1, 0)
-# pt2 = Particle(0, 2, 0)
+pt0 = Particle(0, 0, 0)
+pt1 = Particle(0, 1, 0)
+pt2 = Particle(0, 2, 0)
 # pt3 = Particle(0.001, 0, 0)
 
 # # System with 3 unique particles

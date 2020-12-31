@@ -7,7 +7,7 @@
 
 from pymaxion.geometry.Vector3d cimport Vector3d
 from pymaxion.geometry.Point3d cimport Point3d
-# from pymaxion.particle cimport Particle
+from pymaxion.particle cimport Particle
 from libc.stdlib cimport free
 
 cdef class Anchor(Goal):
@@ -69,16 +69,9 @@ cdef class Anchor(Goal):
         anchor.strength.push_back(strength)
         return anchor
 
-<<<<<<< HEAD
-    # @classmethod
-    # def from_point(cls, list pt, double strength=1.0):
-    #     particle = Particle(pt)
-    #     anchor = cls([particle], strength)
-    #     return anchor
-=======
     @classmethod
     def from_pt(cls, list pt, double strength=1.0):
         particle = Particle(pt[0], pt[1], pt[2])
         anchor = cls([particle], strength)
         return anchor
->>>>>>> temp
+
