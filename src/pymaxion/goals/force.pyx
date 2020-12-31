@@ -15,6 +15,10 @@ cdef class Force(Goal):
     def __init__(Force self, list particles,
                  list force_vector, list p_index=[]):
         
+        if len(particles) != self.goal_n_particles:
+            raise ValueError("Incorrect number of particles for Force")
+        super().__init__(particles)
+
         self.move_vectors.push_back(Vector3d(force_vector[0],
                                              force_vector[1],
                                              force_vector[2]))

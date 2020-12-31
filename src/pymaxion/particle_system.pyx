@@ -113,7 +113,7 @@ cdef class ParticleSystem(object):
                             double[:] p_weights, double[:, :] p_pos,
                             double[:, :] p_vel) nogil:
         '''
-        Global move for particles once lo cal solve completed
+        Global move for particles once local solve completed
         '''
         cdef double nx, ny, nz
         cdef double vx, vy, vz

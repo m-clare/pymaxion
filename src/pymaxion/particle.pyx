@@ -63,3 +63,11 @@ cdef class Particle(object):
     @property
     def system_index(Particle self):
         return self.system_index
+
+    cpdef distance_to_particle(Particle self, Particle particle):
+        p0 = self.position[0]
+        p1 = particle.position[0]
+        return p0.distance_to_point(p1)
+
+        # v = [a - b for (a, b) in zip (p0, p1)]
+        # return sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)

@@ -19,15 +19,14 @@ cdef class Goal(object):
         self.strength = new vector[double]()
         self.goal_n_particles = 1 # min particle number
 
-    def __init__(Goal self):
-        # self.particles = []
+    def __init__(Goal self, list particles=[]):
+        self.particles = []
 
-        # for particle in particles:
-            # if not isinstance(particle, Particle):
-                # raise TypeError("Goal must be applied to a particle!")
-            # else:
-                # self.particles.append(particle)
-        pass
+        for particle in particles:
+            if not isinstance(particle, Particle):
+                raise TypeError("Goal must be created with a reference particle!")
+            else:
+                self.particles.append(particle)
 
     def __dealloc__(self):
         if self.particle_index != NULL:

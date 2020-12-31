@@ -43,4 +43,12 @@ namespace geometry {
     this->y = v.y;
     this->z = v.z;
   }
+
+  double Point3d::distance_to_point(const Point3d p) {
+    double xd, yd, zd;
+    xd = this->x - p.x;
+    yd = this->y - p.y;
+    zd = this->z - p.z;
+    return (std::sqrt(xd * xd + yd * yd + zd * zd));
+  }
 }
