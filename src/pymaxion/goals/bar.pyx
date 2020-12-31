@@ -12,26 +12,28 @@ cdef class Bar(Goal):
     def __cinit__(Bar self):
         self.goal_n_particles = 2
 
-    def __init__(Bar self, double E, double A, double initial_length=0.0,
-                 list particles=[], list p_index=[]):
+    def __init__(Bar self, list particles,
+                 double E, double A, double initial_length=0.0,
+                 list p_index=[]):
+
+        if len(particles) != self.goal_n_particles:
+            raise ValueError("Incorrect number of particles for Bar")
+        super().__init__(particles)
 
         self.E = E
         self.A = A
-        self.initial_length = initial_length
-        # self.particles = []
 
-        # for particle in particles:
-            # self.particles.append(Particle(particle[0],
-                                           # particle[1],
-                                           # particle[2]))
-        if p_index:
-            for ind in p_index:
-                self.particle_index.push_back(ind)
+        if initial_length == 0.0:
+            # set initial length to current length
+            p0 = self.particles[0]
+            p1 = self.particles[1]
+            self.initial_length = p0.distance_to_particle(p1)
+        else:
+            self.initial_length = initial_length
 
-        if initial_length:
-            for i in range(len(p_index)):
-                self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
-                self.strength.push_back((2 * E * A) / initial_length)
+        for i in range(self.goal_n_particles):
+            self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
+            self.strength.push_back((2 * E * A) / initial_length)
 
     cdef void calculate(Bar self, double[:, :] arr) nogil:
         cdef Vector3d start_pt

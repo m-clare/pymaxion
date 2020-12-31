@@ -10,3 +10,4 @@ cdef class Particle:
     cdef double sum_weights
     cdef int system_index
     cdef void reset(Particle)
+    cpdef distance_to_particle(Particle, Particle particle)

@@ -12,17 +12,24 @@ cdef class Cable(Goal):
     def __cinit__(Cable self):
         self.goal_n_particles = 2
 
-    def __init__(Cable self, double E, double A,
-                 double rest_length=0.0, list particles=[],
+    def __init__(Cable self, list particles,
+                 double E, double A, double rest_length=0.0,
                  list p_index=[]):
+
+        if len(particles) != self.goal_n_particles:
+            raise ValueError("Incorrect number of particles for Cable")
+        super().__init__(particles)
+
         self.E = E
         self.A = A
-        self.rest_length = rest_length
 
-        # initialize vectors
-        if p_index:
-            for ind in p_index:
-                self.particle_index.push_back(ind)
+        if rest_length == 0.0:
+            # set initial length to current length
+            p0 = self.particles[0]
+            p1 = self.particles[1]
+            self.rest_length = p0.distance_to_particle(p1)
+        else:
+            self.rest_length = rest_length
 
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))

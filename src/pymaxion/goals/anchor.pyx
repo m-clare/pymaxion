@@ -16,19 +16,21 @@ cdef class Anchor(Goal):
         self.goal_n_particles = 1
         self.anchor_pt = new vector[Point3d]()
 
-    def __init__(Anchor self, list anchor_pt, double strength=1.0,
-                 list particles=[], list p_index=[]):
-        self.particles = []
+    def __init__(Anchor self, list particles, double strength=1.0,
+                 list anchor_pt=[], list p_index=[]):
 
-
-        self.particles.append(Particle(anchor_pt[0],
-                                       anchor_pt[1],
-                                       anchor_pt[2]))
+        if len(particles) != self.goal_n_particles:
+            raise ValueError("Incorrect number of particles for Anchor")
+        super().__init__(particles)
 
         # initialize vectors
-        self.anchor_pt.push_back(Point3d(anchor_pt[0],
-                                         anchor_pt[1],
-                                         anchor_pt[2]))
+        if not anchor_pt:
+            x, y, z = self.particles[0].position
+            self.anchor_pt.push_back(Point3d(x, y, z))
+        else:
+            self.anchor_pt.push_back(Point3d(anchor_pt[0],
+                                             anchor_pt[1],
+                                             anchor_pt[2]))
 
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
 
@@ -68,7 +70,7 @@ cdef class Anchor(Goal):
         return anchor
 
     @classmethod
-    def from_particle(cls, Particle particle, double strength=1.0):
-        pos = particle.position[0]
-        anchor = cls([pos.x, pos.y, pos.z], strength)
+    def from_pt(cls, list pt, double strength=1.0):
+        particle = Particle(pt[0], pt[1], pt[2])
+        anchor = cls([particle], strength)
         return anchor
