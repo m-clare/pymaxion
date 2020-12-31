@@ -30,19 +30,23 @@ pt2 = Particle(0, 2, 0)
 # print(system_2.ref_positions)
 # print(system_2.ref_particles)
 
-# # System with 2 original particles,
-# # one added unique Anchor, one existing Anchor
+# System with 2 original particles,
+# one added unique Anchor, one existing Anchor
 # print("From particle")
-# a1 = Anchor([pt2], strength=1e10)
+# a1 = Anchor([pt2], strength=1e10, anchor_pt=[2, 0, 10])
 # a2 = Anchor.from_pt([0, 0, 0], 1e10)
+# f1 = Force([pt2], [0, 0, -1e10])
 # plist_3 = [pt0, pt1]
-# glist_3 = [a1, a2]
+# glist_3 = [a1, a2, f1]
 # system_3 = ParticleSystem()
 # for pt in plist_3:
 #     system_3.add_particle_to_system(pt)
 # for goal in glist_3:
 #     system_3.add_goal_to_system(goal)
-# print(system_3.n_particles)
+
+# system_3.solve(max_iter=1000)
+# print(system_3.num_iter)
+# print(system_3.particle_positions)
 
 # System with 3 particles, 2 cables, two Anchors, one Force
 plist_4 = [pt0, pt1, pt2]
@@ -61,9 +65,11 @@ for pt in plist_4:
 for goal in glist_4:
     system_4.add_goal_to_system(goal)
 
-system_4.initialize_system()
+for goal in system_4.ref_goals:
+    print(goal.particle_index)
+    print(goal.strength)
 print(system_4.particle_positions)
 
-system_4.solve(max_iter=2)
+system_4.solve(max_iter=1000)
 print(system_4.particle_positions)
 

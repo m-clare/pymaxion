@@ -33,7 +33,7 @@ cdef class Bar(Goal):
 
         for i in range(self.goal_n_particles):
             self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
-            self.strength.push_back((2 * E * A) / initial_length)
+            self.strength.push_back((2 * E * A) / self.initial_length)
 
     cdef void calculate(Bar self, double[:, :] arr) nogil:
         cdef Vector3d start_pt

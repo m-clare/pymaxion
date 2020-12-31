@@ -33,8 +33,8 @@ cdef class Cable(Goal):
 
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
         self.move_vectors.push_back(Vector3d(0.0, 0.0, 0.0))
-        self.strength.push_back((2 * E * A) / rest_length)
-        self.strength.push_back((2 * E * A) / rest_length)
+        self.strength.push_back((2 * E * A) / self.rest_length)
+        self.strength.push_back((2 * E * A) / self.rest_length)
 
     cdef void calculate(Cable self, double[:, :] arr) nogil:
         cdef Vector3d start_pt

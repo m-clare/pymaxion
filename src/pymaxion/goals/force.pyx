@@ -23,7 +23,8 @@ cdef class Force(Goal):
                                              force_vector[1],
                                              force_vector[2]))
         self.strength.push_back(1.0)
-        
-        for ind in p_index:
-            self.particle_index.push_back(ind)
+
+        if p_index:
+            for ind in p_index:
+                self.particle_index.push_back(ind)
 
