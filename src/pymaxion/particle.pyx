@@ -68,6 +68,3 @@ cdef class Particle(object):
         p0 = self.position[0]
         p1 = particle.position[0]
         return p0.distance_to_point(p1)
-
-        # v = [a - b for (a, b) in zip (p0, p1)]
-        # return sqrt(v[0] ** 2 + v[1] ** 2 + v[2] ** 2)

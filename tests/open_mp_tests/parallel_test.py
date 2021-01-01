@@ -21,11 +21,11 @@ def create_sample_system(parallel=False):
     A = 20 ** 2.0 * np.pi / 4.0
     load = -1e6
 
-    cp1 = Anchor([0, 0, 0], 1e20, [0])
-    cp2 = Anchor([2, 0, 0], 1e20, [2])
-    cp3 = Cable(E, A, 1.0, [0, 1])
-    cp4 = Cable(E, A, 1.0, [1, 2])
-    cp5 = Force([0, 0, load], [1])
+    cp1 = Anchor([Particle(0, 0, 0)], 1e20)
+    cp2 = Anchor([Particle(2, 0, 0)], 1e20)
+    cp3 = Cable([pt1, pt2], E, A, 1.0)
+    cp4 = Cable([pt2, pt3], E, A, 1.0)
+    cp5 = Force([pt2], [0, 0, load])
 
     particles = [pt1, pt2, pt3]
     constraints = [cp1, cp2, cp3, cp4, cp5]

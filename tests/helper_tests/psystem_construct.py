@@ -72,4 +72,3 @@ print(system_4.particle_positions)
 
 system_4.solve(max_iter=1000)
 print(system_4.particle_positions)
-
