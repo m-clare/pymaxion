@@ -20,5 +20,5 @@ if bpy is not None:
             register_class(cls)
 
     def un_register():
-        for cls in classes:
+        for cls in reversed(classes):
             unregister_class(cls)

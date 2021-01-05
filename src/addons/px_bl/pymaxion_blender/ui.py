@@ -14,8 +14,8 @@ class PYMAXION_PT_particleSystem(Panel):
         row = layout.row(align=True)
         op = row.operator("pymaxion_blender.create_particle_system",
                           text="Create Particle System")
-        op.obj_name = "Particle System"
-        op.data_type = "mesh"
+        # op.obj_name = "Particle System"
+        # op.data_type = "mesh"
 
 # class PYMAXION_PT_goals(Panel):
 #     bl_idname = "PYMAXION_PT_goals"
