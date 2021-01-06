@@ -1,4 +1,5 @@
 import bpy
+from bpy.props import EnumProperty 
 from bpy.types import Operator
 
 class create_particle_system(Operator):
@@ -17,36 +18,71 @@ class create_particle_system(Operator):
         # pass
 
 
-# class PYMAXION_OT_anchorGoal(Operator):
+class PYMAXION_OT_anchorGoal(Operator):
+    bl_idname = 'pymaxion_blender.anchor_goal'
+    bl_label = 'Anchor Goal'
+    bl_description = 'Actions related to anchor goals.'
+    bl_options = {'REGISTER', 'UNDO'}
 
-#     @staticmethod
-#     def add_anchor(context):
-#         pass
+    action: EnumProperty(
+        items=[
+            ('ADD', 'add anchors', 'add anchors'),
+            ('REMOVE', 'remove anchors', 'remove anchors')
+        ]
+    )
 
-#     @staticmethod
-#     def remove_anchor(context):
-#         pass
-#     pass
+    def execute(self, context):
+        if self.action == 'ADD':
+            self.add_anchors(context=context)
+        if self.action == 'REMOVE':
+            self.remove_anchors(context=context)
+        return {'FINISHED'}
 
-# class PYMAXION_OT_cableGoal(Operator):
+    @staticmethod
+    def add_anchors(context):
+        print("Adding anchors")
 
-#     @staticmethod
-#     def add_cable(context):
-#         pass
+    @staticmethod
+    def remove_anchors(context):
+        print("Removing anchors")
 
-#     @staticmethod
-#     def remove_cable(context):
-#         pass
-#     pass
+class PYMAXION_OT_cableGoal(Operator):
+    bl_idname = 'pymaxion_blender.cable_goal'
+    bl_label = 'Cable Goal'
+    bl_description = 'Actions related to cable goals.'
+    bl_options = {'REGISTER', 'UNDO'}
+
+    action: EnumProperty(
+        items=[
+            ('ADD', 'add cables', 'add cables'),
+            ('REMOVE', 'remove cables', 'remove cables')
+        ]
+    )
+
+    def execute(self, context):
+        if self.action == 'ADD':
+            self.add_cables(context=context)
+        if self.action == 'REMOVE':
+            self.remove_cables(context=context)
+        return {'FINISHED'}
+
+    @staticmethod
+    def add_cables(context):
+        print("Adding cables")
+
+    @staticmethod
+    def remove_cables(context):
+        print("Removing cables")
+
 
 # class PYMAXION_OT_forceGoal(Operator):
 
 #     @staticmethod
-#     def add_force(context):
+#     def add_forces(context):
 #         pass
 
 #     @staticmethod
-#     def remove_force(context):
+#     def remove_forces(context):
 #         pass
 #     pass
 

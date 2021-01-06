@@ -12,7 +12,10 @@ if bpy is not None:
 
     classes = (
         operator.create_particle_system,
+        operator.PYMAXION_OT_anchorGoal,
+        operator.PYMAXION_OT_cableGoal,
         ui.PYMAXION_PT_particleSystem,
+        ui.PYMAXION_PT_goals,
     )
 
     def register():
