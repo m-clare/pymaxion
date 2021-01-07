@@ -14,6 +14,7 @@ if bpy is not None:
         operator.create_particle_system,
         operator.PYMAXION_OT_anchorGoal,
         operator.PYMAXION_OT_cableGoal,
+        operator.PYMAXION_OT_forceGoal,
         ui.PYMAXION_PT_particleSystem,
         ui.PYMAXION_PT_goals,
     )
