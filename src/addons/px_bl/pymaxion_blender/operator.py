@@ -20,9 +20,6 @@ class create_particle_system(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             obj.name = 'Pymaxion Particle System'
-            obj.data['ParticleSystem'] = {'Anchors': [],
-                                          'Cables': [],
-                                          'Forces': []}
         else:
             raise TypeError('Particle System must come from a mesh.')
         return {'FINISHED'}
@@ -68,16 +65,15 @@ class PYMAXION_OT_anchorGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                ps = obj.data['ParticleSystem']
+                ps = obj.data
                 for v in obj.data.vertices:
                     if v.select:
-                        print(v.index)
-                        ps['Anchors'].append({'m_index': v.index,
-                                              'strength': 1e20})
+                        if 'Anchors' not in obj.data:
+                            obj.data['Anchors'] = {}
+                        obj.data['Anchors'][str(v.index)] = {'strength': 1e20}
+                        print("Added an anchor " + str(v.index))
             else:
                 raise ValueError('Anchors are not part of a Pymaxion Particle System')
-
-        print('Adding anchors')
 
     @staticmethod
     def remove_anchors(context):
@@ -85,6 +81,10 @@ class PYMAXION_OT_anchorGoal(Operator):
 
     @staticmethod
     def show_anchors(context):
+        obj = bpy.data.objects['Pymaxion Particle System']
+        if 'Anchors' in obj.data:
+            for key, value in obj.data['Anchors'].items():
+                print(key, obj.data['Anchors'][key]['strength'])
         print('Showing anchors')
 
 class PYMAXION_OT_cableGoal(Operator):
