@@ -3,6 +3,7 @@ from bpy.props import EnumProperty
 from bpy.types import Operator
 import bmesh
 import sys
+import numpy as np
 
 sys.path.append('/Users/maryannewachter/workspaces/current/pymaxion/src')
 
@@ -115,13 +116,14 @@ class PYMAXION_OT_cableGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                ps = obj.data['ParticleSystem']
                 for e in obj.data.edges:
                     if e.select:
-                        vs = edge.vertices
-                        ps['Cables'].append({'m_index': [vs[0], vs[1]],
-                                             'E': 210e9,
-                                             'A': 0.02 ** 2.0 * np.pi / 4.0})
+                        vs = e.vertices
+                        if 'Cables' not in obj.data:
+                            obj.data['Cables'] = {}
+                        obj.data['Cables'][str((vs[0], vs[1]))] = {'E': 210e9,
+                                                                  'A': 0.02 ** 2.0 * np.pi / 4.0}
+                        print("Added a cable " + str((vs[0], vs[1])))
             else:
                 raise ValueError('Cables are not part of a Pymaxion Particle System')
         print('Adding cables')
@@ -163,13 +165,16 @@ class PYMAXION_OT_forceGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                for v in obj.data.verticess:
+                ps = obj.data
+                for v in obj.data.vertices:
                     if v.select:
-                        ps['Anchor'].append({'m_index': v.index,
-                                             'vector': [0, 0, -5e6]})          
+                        if 'Forces' not in obj.data:
+                            obj.data['Forces'] = {}
+                        obj.data['Forces'][str(v.index)] = {'vector': [0, 0, -5e6]}
+                        print("Added a force " + str(v.index))
             else:
-                raise ValueError('Force application points ' +
-                                 'are not part of a Pymaxion Particle System')
+                raise ValueError('Forces are not part of a Pymaxion Particle System')
+
 
     @staticmethod
     def remove_forces(context):
