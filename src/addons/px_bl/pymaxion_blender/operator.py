@@ -31,10 +31,22 @@ class solve_particle_system(Operator):
 
     def execute(self, context):
         # check if particle system mesh exists
+        if bpy.data.objects['Pymaxion Particle System']:
+            obj = bpy.data.objects['Pymaxion Particle System']
+            print("Found particle system!")
+            if obj.data['Cables']:
+                self.parse_cables(obj.data['Cables'])
 
         psystem = ParticleSystem()
         return {'FINISHED'}
-        
+
+    def parse_cables(self, cables):
+        for cable, attr in cables.items():
+            cable_tuple = eval(cable)
+            print(type(cable_tuple), cable_tuple)
+
+
+
 
 
 
