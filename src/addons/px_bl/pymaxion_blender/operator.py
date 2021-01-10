@@ -34,19 +34,67 @@ class solve_particle_system(Operator):
         if bpy.data.objects['Pymaxion Particle System']:
             obj = bpy.data.objects['Pymaxion Particle System']
             print("Found particle system!")
-            if obj.data['Cables']:
-                self.parse_cables(obj.data['Cables'])
 
-        psystem = ParticleSystem()
+            psystem = ParticleSystem()
+
+            for pt in obj.data.vertices:
+                x, y, z = self.get_vert_coordinates(pt.index)
+                psystem.add_particle_to_system(Particle(x, y, z))
+
+            print(psystem.n_particles)
+
+            if obj.data['Cables']:
+                cables = self.parse_cables(obj.data['Cables'])
+                psystem.add_goals_to_system(cables)
+
+            if obj.data['Forces']:
+                forces = self.parse_forces(obj.data['Forces'])
+                psystem.add_goals_to_system(forces)
+
+            if obj.data['Anchors']:
+                anchors = self.parse_anchors(obj.data['Anchors'])
+                psystem.add_goals_to_system(anchors)
+
         return {'FINISHED'}
 
+    def get_vert_coordinates(self, vert_index):
+        obj = bpy.data.objects['Pymaxion Particle System']
+        verts = obj.data.vertices
+        x, y, z = verts[vert_index].co
+        return x, y, z
+
     def parse_cables(self, cables):
+        cable_list = []
         for cable, attr in cables.items():
-            cable_tuple = eval(cable)
-            print(type(cable_tuple), cable_tuple)
+            ct = eval(cable)
+            x0, y0, z0 = self.get_vert_coordinates(ct[0])
+            x1, y1, z1 = self.get_vert_coordinates(ct[1])
+            p0 = Particle(x0, y0, z0)
+            p1 = Particle(x1, y1, z1)
+            pcable = Cable([p0, p1], attr['E'], attr['A'])
+            cable_list.append(pcable)
+        return cable_list
 
+    def parse_anchors(self, anchors):
+        anchor_list = []
+        for anchor, attr in anchors.items():
+            at = eval(anchor)
+            x0, y0, z0 = self.get_vert_coordinates(at)
+            p0 = Particle(x0, y0, z0)
+            panchor = Anchor([p0], attr['strength'])
+            anchor_list.append(panchor)
+        return anchor_list
 
-
+    def parse_forces(self, forces):
+        force_list = []
+        for force, attr in forces.items():
+            ft = eval(force)
+            x0, y0, z0 = self.get_vert_coordinates(ft)
+            p0 = Particle(x0, y0, z0)
+            vec = attr['vector']
+            pforce = Force([p0], [vec[0], vec[1], vec[2]])
+            force_list.append(pforce)
+        return force_list
 
 
 
@@ -196,14 +244,4 @@ class PYMAXION_OT_forceGoal(Operator):
     def show_forces(context):
         print('Showing forces')
 
-# class PYMAXION_OT_forceGoal(Operator):
-
-#     @staticmethod
-#     def add_forces(context):
-#         pass
-
-#     @staticmethod
-#     def remove_forces(context):
-#         pass
-#     pass
 

@@ -67,6 +67,10 @@ cdef class ParticleSystem(object):
             p_ind = self.assign_particle_index(particle)
         return p_ind
 
+    cpdef add_particles_to_system(ParticleSystem self, list particles):
+        for particle in particles:
+            self.add_particle_to_system(particle)
+
     cpdef add_goal_to_system(ParticleSystem self, Goal goal, only_existing=False):
         for particle in goal.particles:
             p_ind = self.find_particle_index(particle)
@@ -82,6 +86,10 @@ cdef class ParticleSystem(object):
                 goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
         self.n_goals += 1
+
+    cpdef add_goals_to_system(ParticleSystem self, list goals):
+        for goal in goals:
+            self.add_goal_to_system(goal, False)
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
