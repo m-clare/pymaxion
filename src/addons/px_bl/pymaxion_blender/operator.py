@@ -35,13 +35,12 @@ class solve_particle_system(Operator):
             obj = bpy.data.objects['Pymaxion Particle System']
             print("Found particle system!")
 
+            me = obj.data
             psystem = ParticleSystem()
 
             for pt in obj.data.vertices:
                 x, y, z = self.get_vert_coordinates(pt.index)
                 psystem.add_particle_to_system(Particle(x, y, z))
-
-            print(psystem.n_particles)
 
             if obj.data['Cables']:
                 cables = self.parse_cables(obj.data['Cables'])
@@ -54,6 +53,15 @@ class solve_particle_system(Operator):
             if obj.data['Anchors']:
                 anchors = self.parse_anchors(obj.data['Anchors'])
                 psystem.add_goals_to_system(anchors)
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            psystem.solve(max_iter=100000, ke=1e-15, parallel=False)
+
+            data = psystem.particle_positions
+
+            for index, v in enumerate(me.vertices):
+                v.co = data[index]
 
         return {'FINISHED'}
 
@@ -126,13 +134,15 @@ class PYMAXION_OT_anchorGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                ps = obj.data
-                for v in obj.data.vertices:
-                    if v.select:
-                        if 'Anchors' not in obj.data:
-                            obj.data['Anchors'] = {}
-                        obj.data['Anchors'][str(v.index)] = {'strength': 1e20}
-                        print("Added an anchor " + str(v.index))
+                mode = bpy.context.active_object.mode
+                bpy.ops.object.mode_set(mode='OBJECT')
+                vs = [v for v in bpy.context.active_object.data.vertices if v.select]
+                if 'Anchors' not in obj.data:
+                    obj.data['Anchors'] = {}
+                for v in vs:
+                    obj.data['Anchors'][str(v.index)] = {'strength': 1e20}
+                    print("Added an anchor " + str(v.index))
+                bpy.ops.object.mode_set(mode=mode)
             else:
                 raise ValueError('Anchors are not part of a Pymaxion Particle System')
 
@@ -176,17 +186,19 @@ class PYMAXION_OT_cableGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                for e in obj.data.edges:
-                    if e.select:
-                        vs = e.vertices
-                        if 'Cables' not in obj.data:
-                            obj.data['Cables'] = {}
-                        obj.data['Cables'][str((vs[0], vs[1]))] = {'E': 210e9,
-                                                                  'A': 0.02 ** 2.0 * np.pi / 4.0}
-                        print("Added a cable " + str((vs[0], vs[1])))
+                mode = bpy.context.active_object.mode
+                bpy.ops.object.mode_set(mode='OBJECT')
+                es = [e for e in bpy.context.active_object.data.edges if e.select]
+                if 'Cables' not in obj.data:
+                    obj.data['Cables'] = {}
+                for e in es:
+                    vs = e.vertices
+                    obj.data['Cables'][str((vs[0], vs[1]))] = {'E': 210e9,
+                                                               'A': 0.02 ** 2.0 * np.pi / 4.0}
+                    print("Added a cable " + str((vs[0], vs[1])))
+                bpy.ops.object.mode_set(mode=mode)
             else:
                 raise ValueError('Cables are not part of a Pymaxion Particle System')
-        print('Adding cables')
 
     @staticmethod
     def remove_cables(context):
@@ -225,13 +237,15 @@ class PYMAXION_OT_forceGoal(Operator):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
             if obj.name == 'Pymaxion Particle System':
-                ps = obj.data
-                for v in obj.data.vertices:
-                    if v.select:
-                        if 'Forces' not in obj.data:
-                            obj.data['Forces'] = {}
-                        obj.data['Forces'][str(v.index)] = {'vector': [0, 0, -5e6]}
-                        print("Added a force " + str(v.index))
+                mode = bpy.context.active_object.mode
+                bpy.ops.object.mode_set(mode='OBJECT')
+                vs = [v for v in bpy.context.active_object.data.vertices if v.select]
+                if 'Forces' not in obj.data:
+                    obj.data['Forces'] = {}
+                for v in vs:
+                    obj.data['Forces'][str(v.index)] = {'vector': [0, 0, -5e6]}
+                    print("Added a force " + str(v.index))
+                bpy.ops.object.mode_set(mode=mode)
             else:
                 raise ValueError('Forces are not part of a Pymaxion Particle System')
 
