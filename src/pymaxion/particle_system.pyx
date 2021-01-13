@@ -57,6 +57,12 @@ cdef class ParticleSystem(object):
         if self.particles != NULL:
             free(self.particles)
 
+    def from_json(ParticleSystem self):
+        pass
+
+    def to_json(ParticleSystem self):
+        pass
+
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
         # Check if particle position already exists in system
         p_ind = self.find_particle_index(particle)
@@ -222,6 +228,7 @@ cdef class ParticleSystem(object):
                 p_weights[:] = 0.0
                 p_moves[:, :] = 0.0
 
+    # TO BE REMOVED ?? FLAG INSTEAD?
     cpdef solve_animate(ParticleSystem self, double ke=1e-10, int max_iter=10000, bint parallel=False, int step=10):
         cdef int i
         cdef int j

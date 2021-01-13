@@ -4,6 +4,7 @@ from bpy.types import Operator
 import bmesh
 import sys
 import numpy as np
+from profilehooks import profile
 
 sys.path.append('/Users/maryannewachter/workspaces/current/pymaxion/src')
 
@@ -31,39 +32,45 @@ class solve_particle_system(Operator):
 
     def execute(self, context):
         # check if particle system mesh exists
+
         if bpy.data.objects['Pymaxion Particle System']:
             obj = bpy.data.objects['Pymaxion Particle System']
             print("Found particle system!")
 
-            me = obj.data
-            psystem = ParticleSystem()
-
-            for pt in obj.data.vertices:
-                x, y, z = self.get_vert_coordinates(pt.index)
-                psystem.add_particle_to_system(Particle(x, y, z))
-
-            if obj.data['Cables']:
-                cables = self.parse_cables(obj.data['Cables'])
-                psystem.add_goals_to_system(cables)
-
-            if obj.data['Forces']:
-                forces = self.parse_forces(obj.data['Forces'])
-                psystem.add_goals_to_system(forces)
-
-            if obj.data['Anchors']:
-                anchors = self.parse_anchors(obj.data['Anchors'])
-                psystem.add_goals_to_system(anchors)
-
-            bpy.ops.object.mode_set(mode='OBJECT')
-
-            psystem.solve(max_iter=100000, ke=1e-15, parallel=False)
-
-            data = psystem.particle_positions
-
-            for index, v in enumerate(me.vertices):
-                v.co = data[index]
+            self.profile_run(obj)
 
         return {'FINISHED'}
+
+    @profile
+    def profile_run(self, obj):
+        me = obj.data
+        psystem = ParticleSystem()
+
+        for pt in obj.data.vertices:
+            x, y, z = self.get_vert_coordinates(pt.index)
+            psystem.add_particle_to_system(Particle(x, y, z))
+
+        if obj.data['Cables']:
+            cables = self.parse_cables(obj.data['Cables'])
+            psystem.add_goals_to_system(cables)
+
+        if obj.data['Forces']:
+            forces = self.parse_forces(obj.data['Forces'])
+            psystem.add_goals_to_system(forces)
+
+        if obj.data['Anchors']:
+            anchors = self.parse_anchors(obj.data['Anchors'])
+            psystem.add_goals_to_system(anchors)
+
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        psystem.solve(max_iter=100000, ke=1e-15, parallel=False)
+        print(psystem.num_iter)
+
+        data = psystem.particle_positions
+
+        for index, v in enumerate(me.vertices):
+            v.co = data[index]
 
     def get_vert_coordinates(self, vert_index):
         obj = bpy.data.objects['Pymaxion Particle System']
@@ -148,6 +155,8 @@ class PYMAXION_OT_anchorGoal(Operator):
 
     @staticmethod
     def remove_anchors(context):
+        # if bpy.data.objects['Pymaxion Particle System']:
+            # obj = bpy.context.
         print('Removing anchors')
 
     @staticmethod
