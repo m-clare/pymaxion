@@ -5,6 +5,7 @@ import bmesh
 import sys
 import numpy as np
 from profilehooks import profile
+import json
 
 sys.path.append('/Users/maryannewachter/workspaces/current/pymaxion/src')
 
@@ -26,19 +27,61 @@ class create_particle_system(Operator):
             raise TypeError('Particle System must come from a mesh.')
         return {'FINISHED'}
 
+class write_particle_system(Operator):
+    bl_idname = 'pymaxion_blender.write_particle_system'
+    bl_label = 'Write Particle System'
+
+    def execute(self, context):
+        data = {} # for json
+        obj = bpy.data.objects['Pymaxion Particle System']
+        me = obj.data
+
+        data['Particles'] = []
+        for index, v in enumerate(me.vertices):
+            data['Particles'].append([v.co.x, v.co.y, v.co.z])
+
+        data['Cables'] = {}
+        if obj.data['Cables']:
+            for cable, attr in obj.data['Cables'].items():
+                strength = attr['E'] * attr['A']
+                data['Cables'].update({cable: strength})
+        data['Anchors'] = {}
+        if obj.data['Anchors']:
+            for anchor, attr in obj.data['Anchors'].items():
+                strength = attr['strength']
+                data['Anchors'].update({anchor: strength})
+        data['Forces'] = {}
+        if obj.data['Forces']:
+            for force, attr in obj.data['Forces'].items():
+                vector = attr['vector']
+                data['Forces'].update({force: [vector[0], vector[1], vector[2]]})
+
+        with open("ParticleSystem.json", 'w+') as f:
+            json.dump(data, f, sort_keys=True, indent=4)
+
+        return {'FINISHED'}
+
+
 class solve_particle_system(Operator):
     bl_idname = 'pymaxion_blender.solve_particle_system'
     bl_label = 'Solve Particle System'
 
-    def execute(self, context):
-        # check if particle system mesh exists
+    def __init__(self):
+        print("Start")
 
+    def __del__(self):
+        print("End")
+
+    def execute(self, context):
         if bpy.data.objects['Pymaxion Particle System']:
             obj = bpy.data.objects['Pymaxion Particle System']
             print("Found particle system!")
 
-            self.profile_run(obj)
+            data = self.profile_run(obj)
 
+            for index, v in enumerate(me.vertices):
+            # check if particle system mesh exists
+                v.co = data[index]
         return {'FINISHED'}
 
     @profile
@@ -69,6 +112,7 @@ class solve_particle_system(Operator):
 
         data = psystem.particle_positions
 
+        return data
         for index, v in enumerate(me.vertices):
             v.co = data[index]
 
@@ -216,7 +260,6 @@ class PYMAXION_OT_cableGoal(Operator):
     @staticmethod
     def show_cables(context):
         print('Showing cables')
-
 
 class PYMAXION_OT_forceGoal(Operator):
     bl_idname = 'pymaxion_blender.force_goal'

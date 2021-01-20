@@ -13,6 +13,7 @@ if bpy is not None:
     classes = (
         operator.create_particle_system,
         operator.solve_particle_system,
+        operator.write_particle_system,
         operator.PYMAXION_OT_anchorGoal,
         operator.PYMAXION_OT_cableGoal,
         operator.PYMAXION_OT_forceGoal,

@@ -57,10 +57,12 @@ cdef class ParticleSystem(object):
         if self.particles != NULL:
             free(self.particles)
 
-    def from_json(ParticleSystem self):
+    @classmethod
+    def from_json(cls, filepath):
         pass
 
-    def to_json(ParticleSystem self):
+    @classmethod
+    def to_json(ParticleSystem self, filepath):
         pass
 
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
