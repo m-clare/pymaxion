@@ -79,19 +79,15 @@ cdef class ParticleSystem(object):
         for particle in particles:
             self.add_particle_to_system(particle)
 
-    cpdef add_goal_to_system(ParticleSystem self, Goal goal, only_existing=False):
+    cpdef add_goal_to_system(ParticleSystem self, Goal goal):
         for particle in goal.particles:
             p_ind = self.find_particle_index(particle)
-            if only_existing:
-                if p_ind is None:
-                    raise ValueError("Goal particle is not part of Particle System")
-            else:
-                if p_ind is None:
-                    self.ref_particles.append(particle)
-                    pos = particle.position
-                    self.ref_positions.append((pos[0], pos[1], pos[2]))
-                    p_ind = self.assign_particle_index(particle)
-                goal.particle_index.push_back(p_ind)
+            if p_ind is None:
+                self.ref_particles.append(particle)
+                pos = particle.position
+                self.ref_positions.append((pos[0], pos[1], pos[2]))
+                p_ind = self.assign_particle_index(particle)
+            goal.particle_index.push_back(p_ind)
         self.ref_goals.append(goal)
         self.n_goals += 1
 
