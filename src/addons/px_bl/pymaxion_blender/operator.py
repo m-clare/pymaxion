@@ -61,7 +61,6 @@ class write_particle_system(Operator):
 
         return {'FINISHED'}
 
-
 class solve_particle_system(Operator):
     bl_idname = 'pymaxion_blender.solve_particle_system'
     bl_label = 'Solve Particle System'
@@ -79,9 +78,6 @@ class solve_particle_system(Operator):
 
             data = self.profile_run(obj)
 
-            for index, v in enumerate(me.vertices):
-            # check if particle system mesh exists
-                v.co = data[index]
         return {'FINISHED'}
 
     @profile
@@ -112,9 +108,10 @@ class solve_particle_system(Operator):
 
         data = psystem.particle_positions
 
-        return data
         for index, v in enumerate(me.vertices):
             v.co = data[index]
+
+        return data
 
     def get_vert_coordinates(self, vert_index):
         obj = bpy.data.objects['Pymaxion Particle System']
