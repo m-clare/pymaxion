@@ -103,7 +103,7 @@ class solve_particle_system(Operator):
 
         bpy.ops.object.mode_set(mode='OBJECT')
 
-        psystem.solve(max_iter=100000, ke=1e-15, parallel=False)
+        psystem.solve(max_iter=100000, ke=1e-10, parallel=False)
         print(psystem.num_iter)
 
         data = psystem.particle_positions

@@ -13,9 +13,12 @@ from libc.stdlib cimport malloc, free
 from libcpp.vector cimport vector
 from numpy cimport ndarray
 from libc.stdio cimport printf
+import json
 
 from pymaxion.goals.goal cimport Goal
 from pymaxion.goals.anchor cimport Anchor
+from pymaxion.goals.cable cimport Cable
+from pymaxion.goals.force cimport Force
 from pymaxion.particle cimport Particle
 from pymaxion.geometry.Vector3d cimport Vector3d
 from pymaxion.geometry.Point3d cimport Point3d
@@ -59,7 +62,40 @@ cdef class ParticleSystem(object):
 
     @classmethod
     def from_json(cls, filepath):
-        pass
+        with open(filepath, 'r') as fh:
+            data = json.load(fh)
+        points = data['Particles']
+        cables = data['Cables']
+        anchors = data['Anchors']
+        forces = data['Forces']
+
+        ps = cls()
+        for pt in points:
+            ps.add_particle_to_system(Particle(pt[0], pt[1], pt[2]))
+
+        for key, prop in cables.items():
+            p_ind = eval(key)
+            p0 = ps.ref_particles[p_ind[0]]
+            p1 = ps.ref_particles[p_ind[1]]
+            E = prop
+            A = 1
+            cable = Cable([p0, p1], E, A)
+            ps.add_goal_to_system(cable)
+
+        for key, prop in anchors.items():
+            p_ind = eval(anchor)
+            strength = prop
+            p0 = ps.ref_particles[p_ind]
+            anchor =Anchor([p0], strength)
+            ps.add_goal_to_system(anchor)
+
+        for key, prop in forces.items():
+            p_ind = eval(force)
+            p0 = ps.ref_particles[p_ind]
+            force = Force([p0], prop)
+            ps.add_goal_to_system(force)
+
+        return ps
 
     @classmethod
     def to_json(ParticleSystem self, filepath):
@@ -93,7 +129,7 @@ cdef class ParticleSystem(object):
 
     cpdef add_goals_to_system(ParticleSystem self, list goals):
         for goal in goals:
-            self.add_goal_to_system(goal, False)
+            self.add_goal_to_system(goal)
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
