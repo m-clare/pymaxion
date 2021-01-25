@@ -83,14 +83,14 @@ cdef class ParticleSystem(object):
             ps.add_goal_to_system(cable)
 
         for key, prop in anchors.items():
-            p_ind = eval(anchor)
+            p_ind = eval(key)
             strength = prop
             p0 = ps.ref_particles[p_ind]
-            anchor =Anchor([p0], strength)
+            anchor = Anchor([p0], strength)
             ps.add_goal_to_system(anchor)
 
         for key, prop in forces.items():
-            p_ind = eval(force)
+            p_ind = eval(key)
             p0 = ps.ref_particles[p_ind]
             force = Force([p0], prop)
             ps.add_goal_to_system(force)
@@ -189,7 +189,7 @@ cdef class ParticleSystem(object):
         p_pos[j, 1] += ny
         p_pos[j, 2] += nz
         p_sum = Vector3d(nx, ny, nz)
-        if (p_sum.length() < 1e-6):
+        if (p_sum.length() < 1e-10):
             vx = 0.0
             vy = 0.0
             vz = 0.0
@@ -206,6 +206,56 @@ cdef class ParticleSystem(object):
             current_particle = self.ref_particles[i]
             cx, cy, cz = matrix_pos[0], matrix_pos[1], matrix_pos[2]
             current_particle.set_position(cx, cy, cz)
+
+    cpdef solve_intermediate(ParticleSystem self, double ke=1e-10, int max_iter=10000,
+                             bint parallel=False):
+        cdef int i
+        cdef int j
+        cdef bint flag
+        cdef double v_sum
+
+        self.initialize_system()
+        flag = False
+        self.num_iter = 0
+        # memory view must be created before nogil
+        cdef double [:, :] p_pos = self.particle_positions
+        cdef double [:, :] p_vel = self.particle_velocities
+        cdef double [:, :] p_moves = self.particle_sum_moves
+        cdef double [:]  p_weights = self.particle_sum_weights
+        # set up C++ only objects for nogil
+        self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
+                                         cython.pointer(PyObject)))
+        for i in range(self.n_goals):
+            self.goals[i] = <PyObject*>self.ref_goals[i]
+        with nogil:
+            while flag == False:
+                for i in range(10):
+                    if parallel:
+                        for j in prange(self.n_goals):
+                            (<Goal?>self.goals[j]).calculate(p_pos)
+                        for j in range(self.n_goals):
+                            (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    else:
+                        for j in range(self.n_goals):
+                            (<Goal?>self.goals[j]).calculate(p_pos)
+                        for j in range(self.n_goals):
+                            (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    for j in range(self.n_particles):
+                        self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
+                    p_weights[:] = 0.0
+                    p_moves[:, :] = 0.0
+                    self.num_iter += 1
+                v_sum = 0.0
+                for j in range(self.n_particles):
+                    v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+                             p_vel[j, 1] * p_vel[j, 1] + \
+                             p_vel[j, 2] * p_vel[j, 2]
+                v_sum = v_sum / self.n_particles
+                if v_sum < ke:
+                    flag = True
+
+
+
 
     cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000,
                 bint parallel=False):
