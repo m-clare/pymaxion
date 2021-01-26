@@ -213,6 +213,15 @@ cdef class ParticleSystem(object):
         cdef int j
         cdef bint flag
         cdef double v_sum
+        cdef double tx
+        cdef double ty
+        cdef double tz
+        cdef double px
+        cdef double py
+        cdef double pz
+        cdef double vx
+        cdef double vy
+        cdef double vz
 
         self.initialize_system()
         flag = False
@@ -229,29 +238,47 @@ cdef class ParticleSystem(object):
             self.goals[i] = <PyObject*>self.ref_goals[i]
         with nogil:
             while flag == False:
-                for i in range(10):
-                    if parallel:
-                        for j in prange(self.n_goals):
-                            (<Goal?>self.goals[j]).calculate(p_pos)
-                        for j in range(self.n_goals):
-                            (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                for j in range(self.n_particles):
+                    p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
+                    p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
+                    p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
+                for j in range(self.n_goals):
+                    (<Goal?>self.goals[j]).calculate(p_pos)
+                for j in range(self.n_goals):
+                    (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                for j in range(self.n_particles):
+                    if (p_moves[j, 0] == 0.0  and p_moves[j, 1] == 0.0  and p_moves[j, 2] == 0.0):
+                        p_vel[j][0] = 0
+                        p_vel[j][1] = 0
+                        p_vel[j][2] = 0
                     else:
-                        for j in range(self.n_goals):
-                            (<Goal?>self.goals[j]).calculate(p_pos)
-                        for j in range(self.n_goals):
-                            (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
-                    for j in range(self.n_particles):
-                        self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
-                    p_weights[:] = 0.0
-                    p_moves[:, :] = 0.0
-                    self.num_iter += 1
+                        tx = p_moves[j, 0] / p_weights[j]
+                        ty = p_moves[j, 1] / p_weights[j]
+                        tz = p_moves[j, 2] / p_weights[j]
+                        px = p_pos[j, 0] + tx
+                        py = p_pos[j, 1] + ty
+                        pz = p_pos[j, 2] + tz
+                        vx = p_vel[j, 0] + tx
+                        vy = p_vel[j, 1] + ty
+                        vz = p_vel[j, 2] + tz
+                        if ((tx * vx + ty * vy + tz * vz) < 0.0):
+                            p_vel[j, 0] = vx * 0.9
+                            p_vel[j, 1] = vy * 0.9
+                            p_vel[j, 2] = vz * 0.9
+                        else:
+                            p_vel[j, 0] = vx
+                            p_vel[j, 1] = vy
+                            p_vel[j, 2] = vz
+                    p_moves[j] = 0.0
+                    p_weights[j] = 0.0
+                self.num_iter += 1
                 v_sum = 0.0
                 for j in range(self.n_particles):
                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
                              p_vel[j, 1] * p_vel[j, 1] + \
                              p_vel[j, 2] * p_vel[j, 2]
                 v_sum = v_sum / self.n_particles
-                if v_sum < ke:
+                if v_sum < ke or max_iter <= self.num_iter:
                     flag = True
 
 
