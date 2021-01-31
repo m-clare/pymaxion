@@ -1,4 +1,4 @@
-from pymaxion.goals.cable import Cable
+from pymaxion.constraints.cable import Cable
 import pymaxion.helpers as helpers
 from numpy import pi
 from numpy import array
@@ -23,7 +23,7 @@ strength = helpers.create_1d_mv(w_sum)
 print(p_sum)
 print(w_sum)
 
-print(test_cable_taut.goal_n_particles)
+print(test_cable_taut.constraint_n_particles)
 # test_cable_taut.pcalculate(ppos)
 # test_cable_taut.p_sum_moves(pp_sum, strength)
 # print(p_sum)

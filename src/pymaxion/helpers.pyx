@@ -33,7 +33,4 @@ def pos_within_tolerance(tuple pt0, tuple pt1, double tol=1e-3):
     z_close = abs(pt0[2] - pt1[2]) < tol
 
     return (x_close and y_close and z_close)
-    # pt3d1 = Point3d(pt1[0], pt1[1], pt1[2])
 
-    # close = pt_within_tolerance(pt3d0, pt3d1, tol)
-    # return close

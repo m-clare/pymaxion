@@ -1,11 +1,11 @@
 import sys
 from time import perf_counter
 import cProfile
-from pymaxion.goals.anchor import Anchor
+from pymaxion.constraints.anchor import Anchor
 from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
-from pymaxion.goals.cable import Cable
-from pymaxion.goals.force import Force
+from pymaxion.constraints.cable import Cable
+from pymaxion.constraints.force import Force
 import numpy as np
 
 
@@ -32,8 +32,8 @@ def create_sample_system(parallel=False):
 
     for particle in particles:
         psystem.add_particle_to_system(particle)
-    for goal in constraints:
-        psystem.add_goal_to_system(goal)
+    for constraint in constraints:
+        psystem.add_constraint_to_system(constraint)
 
     psystem.solve(max_iter=1000, parallel=parallel)
     print(psystem.particle_velocities)

@@ -10,16 +10,16 @@ from pymaxion.geometry.Point3d cimport Point3d
 from pymaxion.particle cimport Particle
 from libc.stdlib cimport free
 
-cdef class Anchor(Goal):
+cdef class Anchor(Constraint):
 
     def __cinit__(Anchor self):
-        self.goal_n_particles = 1
+        self.constraint_n_particles = 1
         self.anchor_pt = new vector[Point3d]()
 
     def __init__(Anchor self, list particles, double strength=1.0,
                  list anchor_pt=[], list p_index=[]):
 
-        if len(particles) != self.goal_n_particles:
+        if len(particles) != self.constraint_n_particles:
             raise ValueError("Incorrect number of particles for Anchor")
         super().__init__(particles)
 

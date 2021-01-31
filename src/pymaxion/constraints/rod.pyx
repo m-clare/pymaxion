@@ -7,10 +7,10 @@
 
 from pymaxion.geometry.Vector3d cimport Vector3d
 
-cdef class Rod(Goal):
+cdef class Rod(Constraint):
 
     def __cinit__(Rod self):
-        self.goal_n_particles = 4
+        self.constraint_n_particles = 4
 
     def __init__(Rod self, list particles,
                  double E, double inertia,

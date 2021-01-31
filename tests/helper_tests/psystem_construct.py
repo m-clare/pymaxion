@@ -1,9 +1,9 @@
 from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
-from pymaxion.goals.anchor import Anchor
-from pymaxion.goals.cable import Cable
-from pymaxion.goals.bar import Bar
-from pymaxion.goals.force import Force
+from pymaxion.constraints.anchor import Anchor
+from pymaxion.constraints.cable import Cable
+from pymaxion.constraints.bar import Bar
+from pymaxion.constraints.force import Force
 
 from numpy import pi
 
@@ -41,8 +41,8 @@ pt2 = Particle(0, 2, 0)
 # system_3 = ParticleSystem()
 # for pt in plist_3:
 #     system_3.add_particle_to_system(pt)
-# for goal in glist_3:
-#     system_3.add_goal_to_system(goal)
+# for constraint in glist_3:
+#     system_3.add_constraint_to_system(constraint)
 
 # system_3.solve(max_iter=1000)
 # print(system_3.num_iter)
@@ -62,12 +62,12 @@ glist_4 = [a1, a2, c1, c2, f1]
 system_4 = ParticleSystem()
 for pt in plist_4:
     system_4.add_particle_to_system(pt)
-for goal in glist_4:
-    system_4.add_goal_to_system(goal)
+for constraint in glist_4:
+    system_4.add_constraint_to_system(constraint)
 
-for goal in system_4.ref_goals:
-    print(goal.particle_index)
-    print(goal.strength)
+for constraint in system_4.ref_constraints:
+    print(constraint.particle_index)
+    print(constraint.strength)
 print(system_4.particle_positions)
 
 system_4.solve(max_iter=1000)

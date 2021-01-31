@@ -1,6 +1,6 @@
-from pymaxion.goals.goal cimport Goal
+from pymaxion.constraints.constraint cimport Constraint
 
-cdef class Cable(Goal):
+cdef class Cable(Constraint):
     cdef readonly double E
     cdef readonly double A
     cdef readonly double rest_length

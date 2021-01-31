@@ -1,9 +1,9 @@
 # Pymaxion imports
-from pymaxion.goals.anchor import Anchor
+from pymaxion.constraints.anchor import Anchor
 from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
-from pymaxion.goals.cable import Cable
-from pymaxion.goals.force import Force
+from pymaxion.constraints.cable import Cable
+from pymaxion.constraints.force import Force
 
 
 def create_sample_system(parallel=False):
@@ -55,13 +55,13 @@ def create_sample_system(parallel=False):
         loads.append(Force([Particle(verts[i][0], verts[i][1], verts[i][2])], [0, 0, load]))
 
     for anchor in anchors:
-        psystem.add_goal_to_system(anchor)
+        psystem.add_constraint_to_system(anchor)
 
     for cable in cables:
-        psystem.add_goal_to_system(cable)
+        psystem.add_constraint_to_system(cable)
 
     for load in loads:
-        psystem.add_goal_to_system(load)
+        psystem.add_constraint_to_system(load)
 
     for particle in particles:
         psystem.add_particle_to_system(particle)

@@ -10,21 +10,21 @@ from pymaxion.geometry.Vector3d cimport Vector3d
 from pymaxion.particle cimport Particle
 import numpy as np
 
-cdef class Goal(object):
+cdef class Constraint(object):
 
-    def __cinit__(Goal self):
+    def __cinit__(Constraint self):
         self.particle_index = new vector[int]()
         self.move_vectors = new vector[Vector3d]()
         self.weighting = new vector[double]()
         self.strength = new vector[double]()
-        self.goal_n_particles = 1 # min particle number
+        self.constraint_n_particles = 1 # min particle number
 
-    def __init__(Goal self, list particles=[]):
+    def __init__(Constraint self, list particles=[]):
         self.particles = []
 
         for particle in particles:
             if not isinstance(particle, Particle):
-                raise TypeError("Goal must be created with a reference particle!")
+                raise TypeError("Constraint must be created with a reference particle!")
             else:
                 self.particles.append(particle)
 
@@ -38,12 +38,12 @@ cdef class Goal(object):
         if self.strength != NULL:
             free(self.strength)
 
-    cdef void calculate(Goal self, double[:,:] arr) nogil:
+    cdef void calculate(Constraint self, double[:,:] arr) nogil:
         pass
 
-    cdef void sum_moves(Goal self, double[:,:] p_sum, double[:] w_sum) nogil:
+    cdef void sum_moves(Constraint self, double[:,:] p_sum, double[:] w_sum) nogil:
         cdef int i
-        for i in range(self.goal_n_particles):
+        for i in range(self.constraint_n_particles):
             p_index = self.particle_index[0].at(i)
             curr_move = self.move_vectors[0].at(i)
             curr_strength = self.strength[0].at(i)
@@ -53,13 +53,13 @@ cdef class Goal(object):
             p_sum[p_index, 2] += curr_move.z * curr_strength
 
     @property
-    def particle_index(Goal self):
+    def particle_index(Constraint self):
         return [ind for ind in self.particle_index[:1]][0]
 
     @property
-    def move_vectors(Goal self):
-        mvs = np.zeros((self.goal_n_particles, 3), dtype=np.double)
-        for i in range(self.goal_n_particles):
+    def move_vectors(Constraint self):
+        mvs = np.zeros((self.constraint_n_particles, 3), dtype=np.double)
+        for i in range(self.constraint_n_particles ):
             mv = self.move_vectors[0].at(i)
             mvs[i, 0] = mv.x
             mvs[i, 1] = mv.y
@@ -67,17 +67,17 @@ cdef class Goal(object):
         return mvs
 
     @property
-    def weighting(Goal self):
+    def weighting(Constraint self):
         return [weighting for weighting in self.weighting[:1]][0]
 
     @property
-    def strength(Goal self):
+    def strength(Constraint self):
         return [strength for strength in self.strength[:1]][0]
 
-    def py_calculate(Goal self, double[:, :] arr):
+    def py_calculate(Constraint self, double[:, :] arr):
         return self.calculate(arr)
 
-    def py_sum_moves(Goal self, double[:,:] p_sum, double[:] w_sum):
+    def py_sum_moves(Constraint self, double[:,:] p_sum, double[:] w_sum):
         return self.sum_moves(p_sum, w_sum)
 
 

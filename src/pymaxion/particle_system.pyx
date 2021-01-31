@@ -15,25 +15,24 @@ from numpy cimport ndarray
 from libc.stdio cimport printf
 import json
 
-from pymaxion.goals.goal cimport Goal
-from pymaxion.goals.anchor cimport Anchor
-from pymaxion.goals.cable cimport Cable
-from pymaxion.goals.force cimport Force
+from pymaxion.constraints.constraint cimport Constraint
+from pymaxion.constraints.anchor cimport Anchor
+from pymaxion.constraints.cable cimport Cable
+from pymaxion.constraints.force cimport Force
 from pymaxion.particle cimport Particle
 from pymaxion.geometry.Vector3d cimport Vector3d
 from pymaxion.geometry.Point3d cimport Point3d
-from pymaxion.helpers cimport pt_within_tolerance
 from pymaxion.helpers import pos_within_tolerance
 
 cdef class ParticleSystem(object):
-    cdef public int n_goals
+    cdef public int n_constraints
     cdef public int n_particles
     cdef public int num_iter
     cdef public double tol
-    cdef PyObject **goals
+    cdef PyObject **constraints
     cdef PyObject **particles
     cdef vector[Point3d] *initial_positions
-    cdef public list ref_goals
+    cdef public list ref_constraints
     cdef public list ref_particles
     cdef public list ref_positions
     cdef public ndarray particle_positions
@@ -42,21 +41,21 @@ cdef class ParticleSystem(object):
     cdef public ndarray particle_velocities
 
     def __cinit__(ParticleSystem self):
-        self.goals = NULL
+        self.constraints = NULL
         self.particles = NULL
-        self.n_goals = 0
+        self.n_constraints = 0
         self.n_particles = 0
         self.num_iter = 0
 
     def __init__(ParticleSystem self, tol=1e-2):
-        self.ref_goals = []
+        self.ref_constraints = []
         self.ref_particles = []
         self.ref_positions = []
         self.tol = tol
 
     def __dealloc__(ParticleSystem self):
-        if self.goals != NULL:
-            free(self.goals)
+        if self.constraints != NULL:
+            free(self.constraints)
         if self.particles != NULL:
             free(self.particles)
 
@@ -80,20 +79,20 @@ cdef class ParticleSystem(object):
             E = prop
             A = 1
             cable = Cable([p0, p1], E, A)
-            ps.add_goal_to_system(cable)
+            ps.add_constraint_to_system(cable)
 
         for key, prop in anchors.items():
             p_ind = eval(key)
             strength = prop
             p0 = ps.ref_particles[p_ind]
             anchor = Anchor([p0], strength)
-            ps.add_goal_to_system(anchor)
+            ps.add_constraint_to_system(anchor)
 
         for key, prop in forces.items():
             p_ind = eval(key)
             p0 = ps.ref_particles[p_ind]
             force = Force([p0], prop)
-            ps.add_goal_to_system(force)
+            ps.add_constraint_to_system(force)
 
         return ps
 
@@ -115,21 +114,21 @@ cdef class ParticleSystem(object):
         for particle in particles:
             self.add_particle_to_system(particle)
 
-    cpdef add_goal_to_system(ParticleSystem self, Goal goal):
-        for particle in goal.particles:
+    cpdef add_constraint_to_system(ParticleSystem self, Constraint constraint):
+        for particle in constraint.particles:
             p_ind = self.find_particle_index(particle)
             if p_ind is None:
                 self.ref_particles.append(particle)
                 pos = particle.position
                 self.ref_positions.append((pos[0], pos[1], pos[2]))
                 p_ind = self.assign_particle_index(particle)
-            goal.particle_index.push_back(p_ind)
-        self.ref_goals.append(goal)
-        self.n_goals += 1
+            constraint.particle_index.push_back(p_ind)
+        self.ref_constraints.append(constraint)
+        self.n_constraints += 1
 
-    cpdef add_goals_to_system(ParticleSystem self, list goals):
-        for goal in goals:
-            self.add_goal_to_system(goal)
+    cpdef add_constraints_to_system(ParticleSystem self, list constraints):
+        for constraint in constraints:
+            self.add_constraint_to_system(constraint)
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
@@ -232,20 +231,20 @@ cdef class ParticleSystem(object):
         cdef double [:, :] p_moves = self.particle_sum_moves
         cdef double [:]  p_weights = self.particle_sum_weights
         # set up C++ only objects for nogil
-        self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
+        self.constraints = <PyObject **>malloc(self.n_constraints*cython.sizeof(
                                          cython.pointer(PyObject)))
-        for i in range(self.n_goals):
-            self.goals[i] = <PyObject*>self.ref_goals[i]
+        for i in range(self.n_constraints):
+            self.constraints[i] = <PyObject*>self.ref_constraints[i]
         with nogil:
             while flag == False:
                 for j in range(self.n_particles):
                     p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
                     p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
                     p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
-                for j in range(self.n_goals):
-                    (<Goal?>self.goals[j]).calculate(p_pos)
-                for j in range(self.n_goals):
-                    (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                for j in range(self.n_constraints):
+                    (<Constraint?>self.constraints[j]).calculate(p_pos)
+                for j in range(self.n_constraints):
+                    (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 for j in range(self.n_particles):
                     if (p_moves[j, 0] == 0.0  and p_moves[j, 1] == 0.0  and p_moves[j, 2] == 0.0):
                         p_vel[j][0] = 0
@@ -301,28 +300,28 @@ cdef class ParticleSystem(object):
         cdef double [:, :] p_moves = self.particle_sum_moves
         cdef double [:]  p_weights = self.particle_sum_weights
         # set up C++ only objects for nogil
-        self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
+        self.constraints = <PyObject **>malloc(self.n_constraints*cython.sizeof(
                                          cython.pointer(PyObject)))
-        for i in range(self.n_goals):
-            self.goals[i] = <PyObject*>self.ref_goals[i]
+        for i in range(self.n_constraints):
+            self.constraints[i] = <PyObject*>self.ref_constraints[i]
         for i in range(max_iter):
             if flag == True:
                 break
             # release GIL for parallel constraint solve
             with nogil:
                 '''
-                System local goal solve
+                System local constraint solve
                 '''
                 if parallel:
-                    for j in prange(self.n_goals):
-                        (<Goal?>self.goals[j]).calculate(p_pos)
-                    for j in range(self.n_goals):
-                        (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    for j in prange(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).calculate(p_pos)
+                    for j in range(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 else:
-                    for j in range(self.n_goals):
-                        (<Goal?>self.goals[j]).calculate(p_pos)
-                    for j in range(self.n_goals):
-                        (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    for j in range(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).calculate(p_pos)
+                    for j in range(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 # move the particles
                 for j in range(self.n_particles):
                     self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
@@ -361,10 +360,10 @@ cdef class ParticleSystem(object):
         cdef double [:, :] p_moves = self.particle_sum_moves
         cdef double [:]  p_weights = self.particle_sum_weights
         # set up C++ only objects for nogil
-        self.goals = <PyObject **>malloc(self.n_goals*cython.sizeof(
+        self.constraints = <PyObject **>malloc(self.n_constraints*cython.sizeof(
                                          cython.pointer(PyObject)))
-        for i in range(self.n_goals):
-            self.goals[i] = <PyObject*>self.ref_goals[i]
+        for i in range(self.n_constraints):
+            self.constraints[i] = <PyObject*>self.ref_constraints[i]
         for i in range(max_iter):
             if flag == True:
                 frames[:, :, k] = p_pos
@@ -372,15 +371,15 @@ cdef class ParticleSystem(object):
             # release GIL for parallel constraint solve
             with nogil:
                 if parallel:
-                    for j in prange(self.n_goals):
-                        (<Goal?>self.goals[j]).calculate(p_pos)
-                    for j in prange(self.n_goals):
-                        (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    for j in prange(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).calculate(p_pos)
+                    for j in prange(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 else:
-                    for j in range(self.n_goals):
-                        (<Goal?>self.goals[j]).calculate(p_pos)
-                    for j in range(self.n_goals):
-                        (<Goal?>self.goals[j]).sum_moves(p_moves, p_weights)
+                    for j in range(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).calculate(p_pos)
+                    for j in range(self.n_constraints):
+                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 # move the particles
                 for j in range(self.n_particles):
                     self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
