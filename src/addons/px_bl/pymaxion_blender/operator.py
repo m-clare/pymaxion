@@ -10,11 +10,11 @@ import json
 sys.path.append('/Users/maryannewachter/workspaces/current/pymaxion/src')
 
 # Pymaxion imports
-from pymaxion.goals.anchor import Anchor
+from pymaxion.constraints.anchor import Anchor
 from pymaxion.particle_system import ParticleSystem
 from pymaxion.particle import Particle
-from pymaxion.goals.cable import Cable
-from pymaxion.goals.force import Force
+from pymaxion.constraints.cable import Cable
+from pymaxion.constraints.force import Force
 
 class create_particle_system(Operator):
     bl_idname = 'pymaxion_blender.create_particle_system'
@@ -91,15 +91,15 @@ class solve_particle_system(Operator):
 
         if obj.data['Cables']:
             cables = self.parse_cables(obj.data['Cables'])
-            psystem.add_goals_to_system(cables)
+            psystem.add_constraints_to_system(cables)
 
         if obj.data['Forces']:
             forces = self.parse_forces(obj.data['Forces'])
-            psystem.add_goals_to_system(forces)
+            psystem.add_constraints_to_system(forces)
 
         if obj.data['Anchors']:
             anchors = self.parse_anchors(obj.data['Anchors'])
-            psystem.add_goals_to_system(anchors)
+            psystem.add_constraints_to_system(anchors)
 
         bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -154,10 +154,10 @@ class solve_particle_system(Operator):
 
 
 
-class PYMAXION_OT_anchorGoal(Operator):
-    bl_idname = 'pymaxion_blender.anchor_goal'
-    bl_label = 'Anchor Goal'
-    bl_description = 'Actions related to anchor goals.'
+class PYMAXION_OT_anchorConstraint(Operator):
+    bl_idname = 'pymaxion_blender.anchor_constraint'
+    bl_label = 'Anchor Constraint'
+    bl_description = 'Actions related to anchor constraints.'
     bl_options = {'REGISTER', 'UNDO'}
 
     action: EnumProperty(
@@ -208,10 +208,10 @@ class PYMAXION_OT_anchorGoal(Operator):
                 print(key, obj.data['Anchors'][key]['strength'])
         print('Showing anchors')
 
-class PYMAXION_OT_cableGoal(Operator):
-    bl_idname = 'pymaxion_blender.cable_goal'
-    bl_label = 'Cable Goal'
-    bl_description = 'Actions related to cable goals.'
+class PYMAXION_OT_cableConstraint(Operator):
+    bl_idname = 'pymaxion_blender.cable_constraint'
+    bl_label = 'Cable Constraint'
+    bl_description = 'Actions related to cable constraints.'
     bl_options = {'REGISTER', 'UNDO'}
 
     action: EnumProperty(
@@ -258,10 +258,10 @@ class PYMAXION_OT_cableGoal(Operator):
     def show_cables(context):
         print('Showing cables')
 
-class PYMAXION_OT_forceGoal(Operator):
-    bl_idname = 'pymaxion_blender.force_goal'
-    bl_label = 'Force Goal'
-    bl_description = 'Actions related to point force goals.'
+class PYMAXION_OT_forceConstraint(Operator):
+    bl_idname = 'pymaxion_blender.force_constraint'
+    bl_label = 'Force Constraint'
+    bl_description = 'Actions related to point force constraints.'
     bl_options = {'REGISTER', 'UNDO'}
 
     action: EnumProperty(

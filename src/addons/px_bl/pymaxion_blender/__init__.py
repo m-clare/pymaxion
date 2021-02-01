@@ -14,11 +14,11 @@ if bpy is not None:
         operator.create_particle_system,
         operator.solve_particle_system,
         operator.write_particle_system,
-        operator.PYMAXION_OT_anchorGoal,
-        operator.PYMAXION_OT_cableGoal,
-        operator.PYMAXION_OT_forceGoal,
+        operator.PYMAXION_OT_anchorConstraint,
+        operator.PYMAXION_OT_cableConstraint,
+        operator.PYMAXION_OT_forceConstraint,
         ui.PYMAXION_PT_particleSystem,
-        ui.PYMAXION_PT_goals,
+        ui.PYMAXION_PT_constraints,
     )
 
     def register():
