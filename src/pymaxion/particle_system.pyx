@@ -34,7 +34,7 @@ cdef class ParticleSystem(object):
     cdef vector[Point3d] *initial_positions
     cdef public list ref_constraints
     cdef public list ref_particles
-    cdef public list ref_positions
+    cdef public dict ref_positions
     cdef public ndarray particle_positions
     cdef public ndarray particle_sum_moves
     cdef public ndarray particle_sum_weights
@@ -50,7 +50,7 @@ cdef class ParticleSystem(object):
     def __init__(ParticleSystem self, tol=1e-2):
         self.ref_constraints = []
         self.ref_particles = []
-        self.ref_positions = []
+        self.ref_positions = {}
         self.tol = tol
 
     def __dealloc__(ParticleSystem self):
@@ -101,13 +101,14 @@ cdef class ParticleSystem(object):
         pass
 
     cpdef add_particle_to_system(ParticleSystem self, Particle particle):
-        # Check if particle position already exists in system
         p_ind = self.find_particle_index(particle)
         if p_ind is None:
             pos = particle.position[0]
             self.ref_particles.append(particle)
-            self.ref_positions.append((pos.x, pos.y, pos.z))
             p_ind = self.assign_particle_index(particle)
+            self.ref_positions.update({(round(pos.x, 3),
+                                        round(pos.y, 3),
+                                        round(pos.z, 3)): p_ind})
         return p_ind
 
     cpdef add_particles_to_system(ParticleSystem self, list particles):
@@ -120,8 +121,10 @@ cdef class ParticleSystem(object):
             if p_ind is None:
                 self.ref_particles.append(particle)
                 pos = particle.position
-                self.ref_positions.append((pos[0], pos[1], pos[2]))
                 p_ind = self.assign_particle_index(particle)
+                self.ref_position.update({(round(pos.x, 3),
+                                           round(pos.y, 3),
+                                           round(pos.z, 3)): p_ind})
             constraint.particle_index.push_back(p_ind)
         self.ref_constraints.append(constraint)
         self.n_constraints += 1
@@ -132,14 +135,13 @@ cdef class ParticleSystem(object):
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
         pos = particle.position[0]
-        for i, e in enumerate(self.ref_positions):
-            if pos_within_tolerance(e, (pos.x, pos.y, pos.z), self.tol):
-                return i
+        trunc = (round(pos.x, 3), round(pos.y, 3), round(pos.z, 3))
+        if trunc in self.ref_positions:
+            return self.ref_positions[trunc]
 
     cpdef assign_particle_index(ParticleSystem self, Particle particle):
         particle.system_index = self.n_particles # zero indexed
-
-        self.n_particles = self.n_particles + 1
+        self.n_particles += 1
         return particle.system_index
 
     cpdef initialize_system(ParticleSystem self):
