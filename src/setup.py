@@ -3,8 +3,9 @@ import sys
 import numpy
 from distutils.core import setup
 from distutils.extension import Extension
+from Cython.Build import cythonize
+from Cython.Compiler.Main import default_options
 from Cython.Distutils import build_ext
-# from Cython.Build import cythonize
 
 # Helper functions
 def scandir(dir, files=[]):
@@ -39,18 +40,13 @@ extNames = scandir("pymaxion")
 
 # build up set of Extension objects
 extensions = [makeExtension(name) for name in extNames]
-print(len(extensions))
-
-
-for e in extensions:
-    e.cython_directives = {'language_level': "3"}
 
 # Create a dictionary of arguments for setup
 setup_args = {
     "name": "pymaxion",
     "packages": ["pymaxion", "pymaxion.goals", "pymaxion.geometry"],
     "py_modules": [],
-    "ext_modules": extensions,
+    "ext_modules": cythonize(extensions, emit_linenums=True, compiler_directives={'language_level': 3}),
     "requires": [],
     "cmdclass": {"build_ext": build_ext},
 }

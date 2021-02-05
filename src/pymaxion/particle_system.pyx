@@ -2,8 +2,9 @@
 # cython: cdivision = True
 # cython: boundscheck = False
 # cython: wraparound = False
-# cython: profile = True
+# cython: linetrace = True
 # cython: language_level = 3
+
 
 cimport cython
 import numpy as np

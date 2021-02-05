@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "Vector3d.h"
 
 namespace geometry {

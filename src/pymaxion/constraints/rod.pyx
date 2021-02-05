@@ -2,8 +2,9 @@
 # cython: cdivision = True
 # cython: boundscheck = False
 # cython: wraparound = False
-# cython: profile = False
+# cython: linetrace = True
 # cython: language_level = 3
+
 
 from pymaxion.geometry.Vector3d cimport Vector3d
 
