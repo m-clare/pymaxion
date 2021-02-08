@@ -41,7 +41,7 @@ __pycache__/
 *.py[cod]
 src/build
 src/pymaxion/__pycache__
-src/pymaxion/goals/__pycache__
-src/pymaxion/goals/*.cpp
+src/pymaxion/constraints/__pycache__
+src/pymaxion/constraints/*.cpp
 src/pymaxion/*.cpp
 tests/*
