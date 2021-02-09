@@ -5,7 +5,7 @@ COPY . /code
 RUN apt-get update
 RUN apt-get -y install sudo
 
-RUN pip install -r /code/requirements.txt
+RUN pip install -r /code/src/requirements.txt
 
 ENV PATH=$PATH:/code/src
 ENV PYTHONPATH "${PYTHONPATH}:/code/src"
