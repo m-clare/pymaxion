@@ -1,5 +1,5 @@
 # pymaxion
-Multi-purpose projective solver for geometric and structural problems. Written in Cython to go wicked fast. Currently only tested against Python3.
+Multi-purpose projective solver for geometric and structural problems. Written in Cython to go wicked fast. Currently only tested against Python3. Based on ideas from [ShapeOp](https://shapeop.org/) and [Dynamic Relaxation](https://en.wikipedia.org/wiki/Dynamic_relaxation).
 
 ## Build Instructions
 Pymaxion utilizes Cython, so it must be compiled before running test cases. A minimal Dockerfile is provided that avoids any OS/missing compiler issues if you want to get up and running quickly!
