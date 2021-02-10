@@ -44,3 +44,6 @@ src/pymaxion/__pycache__
 src/pymaxion/constraints/__pycache__
 src/pymaxion/constraints/*.cpp
 src/pymaxion/*.cpp
+
+# misc
+makefile

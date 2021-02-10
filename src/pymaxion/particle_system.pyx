@@ -26,13 +26,23 @@ from pymaxion.geometry.Point3d cimport Point3d
 from pymaxion.helpers import pos_within_tolerance
 
 cdef class ParticleSystem(object):
+    """System basis for simulation composed of particles and the relationships between them based on constraints.
+
+    Attributes
+    ----------
+    ref_particles: list
+       Particles in the system as defined by their (x, y, z) coordinates.
+       They cannot occupy the same (x, y, z) coordinates at the start of simulation else they will be merged.
+
+    ref_constraints: list
+        List of relationships between particles based on their current x,y,z position and constraint weighting.
+    """
     cdef public int n_constraints
     cdef public int n_particles
     cdef public int num_iter
     cdef public double tol
     cdef PyObject **constraints
     cdef PyObject **particles
-    cdef vector[Point3d] *initial_positions
     cdef public list ref_constraints
     cdef public list ref_particles
     cdef public dict ref_positions
@@ -48,11 +58,10 @@ cdef class ParticleSystem(object):
         self.n_particles = 0
         self.num_iter = 0
 
-    def __init__(ParticleSystem self, tol=1e-2):
+    def __init__(ParticleSystem self):
         self.ref_constraints = []
         self.ref_particles = []
         self.ref_positions = {}
-        self.tol = tol
 
     def __dealloc__(ParticleSystem self):
         if self.constraints != NULL:
@@ -195,7 +204,7 @@ cdef class ParticleSystem(object):
     cpdef solve(ParticleSystem self, double ke=1e-10, int max_iter=10000,
                 bint parallel=False):
         """
-        Main solver for projective DR.
+        Main solve method for projective DR.
         """
         cdef int i
         cdef int j
