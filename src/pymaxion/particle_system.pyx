@@ -35,7 +35,7 @@ cdef class ParticleSystem(object):
        They cannot occupy the same (x, y, z) coordinates at the start of simulation else they will be merged.
 
     ref_constraints: list
-        List of relationships between particles based on their current x,y,z position and constraint weighting.
+        List of relationships between particles based on their current (x,y,z) position and constraint weighting.
     """
     cdef public int n_constraints
     cdef public int n_particles
