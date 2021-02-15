@@ -87,3 +87,4 @@ cdef class Particle(object):
         p0 = self.position[0]
         p1 = particle.position[0]
         return p0.distance_to_point(p1)
+
