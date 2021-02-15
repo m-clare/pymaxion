@@ -51,16 +51,16 @@ cdef class Anchor(Constraint):
             free(self.anchor_pt)
 
     cdef void calculate(Anchor self, double[:,:] arr) nogil:
-        cdef Vector3d cur_pos
+        cdef Vector3d destination_pos
         anchor_pt = self.anchor_pt[0].at(0)
         p_index = self.particle_index[0].at(0)
-        cur_pos = Vector3d(anchor_pt.x, anchor_pt.y, anchor_pt.z)
-        new_pos = cur_pos.vector_subtract(Vector3d(arr[p_index, 0],
-                                                     arr[p_index, 1],
-                                                     arr[p_index, 2]))
-        self.move_vectors[0].at(0).set_value(new_pos.x,
-                                             new_pos.y,
-                                             new_pos.z)
+        destination_pos = Vector3d(anchor_pt.x, anchor_pt.y, anchor_pt.z)
+        difference = destination_pos.vector_subtract(Vector3d(arr[p_index, 0],
+                                                              arr[p_index, 1],
+                                                              arr[p_index, 2]))
+        self.move_vectors[0].at(0).set_value(difference.x,
+                                             difference.y,
+                                             difference.z)
 
     @property
     def anchor_pt(Anchor self):

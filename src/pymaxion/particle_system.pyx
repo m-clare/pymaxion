@@ -211,7 +211,6 @@ cdef class ParticleSystem(object):
         cdef bint flag
         cdef double v_sum
         cdef double tx, ty, tz
-        cdef double px, py, pz
         cdef double vx, vy, vz
 
         self.initialize_system()
@@ -246,9 +245,6 @@ cdef class ParticleSystem(object):
                         tx = p_moves[j, 0] / p_weights[j]
                         ty = p_moves[j, 1] / p_weights[j]
                         tz = p_moves[j, 2] / p_weights[j]
-                        px = p_pos[j, 0] + tx
-                        py = p_pos[j, 1] + ty
-                        pz = p_pos[j, 2] + tz
                         vx = p_vel[j, 0] + tx
                         vy = p_vel[j, 1] + ty
                         vz = p_vel[j, 2] + tz
