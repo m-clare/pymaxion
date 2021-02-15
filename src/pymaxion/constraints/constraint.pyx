@@ -46,13 +46,12 @@ cdef class Constraint(object):
     cdef void calculate(Constraint self, double[:,:] arr) nogil:
         pass
 
-    cdef void sum_moves(Constraint self, double[:,:] p_sum, double[:] w_sum) nogil:
+    cdef void sum_moves(Constraint self, double[:,:] p_sum) nogil:
         cdef int i
         for i in range(self.constraint_n_particles):
             p_index = self.particle_index[0].at(i)
             curr_move = self.move_vectors[0].at(i)
             curr_strength = self.strength[0].at(i)
-            w_sum[p_index] += curr_strength
             p_sum[p_index, 0] += curr_move.x * curr_strength
             p_sum[p_index, 1] += curr_move.y * curr_strength
             p_sum[p_index, 2] += curr_move.z * curr_strength
@@ -82,7 +81,7 @@ cdef class Constraint(object):
     def py_calculate(Constraint self, double[:, :] arr):
         return self.calculate(arr)
 
-    def py_sum_moves(Constraint self, double[:,:] p_sum, double[:] w_sum):
-        return self.sum_moves(p_sum, w_sum)
+    def py_sum_moves(Constraint self, double[:,:] p_sum):
+        return self.sum_moves(p_sum)
 
 

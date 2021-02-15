@@ -178,6 +178,8 @@ cdef class ParticleSystem(object):
         Initialize numpy matrices for vector solve (memory views in Cython).
         """
         cdef int i
+        cdef int j
+        cdef int p_i
         self.particle_positions   = zeros((self.n_particles, 3),
                                            dtype=npd)
         self.particle_velocities  = zeros((self.n_particles, 3),
@@ -190,6 +192,12 @@ cdef class ParticleSystem(object):
             particle = self.ref_particles[i]
             self.particle_positions[i, :] = particle.position
             self.particle_velocities[i,:] = particle.velocity
+
+        for i in range(self.n_constraints):
+            constraint = self.ref_constraints[i]
+            for j in range(len(constraint.particle_index)):
+                p_i = constraint.particle_index[j]
+                self.particle_sum_weights[p_i] += constraint.strength[j]
 
     cpdef finalize_system(ParticleSystem self):
         """
@@ -235,7 +243,7 @@ cdef class ParticleSystem(object):
                 for j in range(self.n_constraints):
                     (<Constraint?>self.constraints[j]).calculate(p_pos)
                 for j in range(self.n_constraints):
-                    (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
+                    (<Constraint?>self.constraints[j]).sum_moves(p_moves)
                 for j in range(self.n_particles):
                     if (p_moves[j, 0] == 0.0 and
                         p_moves[j, 1] == 0.0 and
@@ -257,7 +265,6 @@ cdef class ParticleSystem(object):
                             p_vel[j, 1] = vy
                             p_vel[j, 2] = vz
                     p_moves[j] = 0.0
-                    p_weights[j] = 0.0
                 self.num_iter += 1
                 v_sum = 0.0
                 for j in range(self.n_particles):

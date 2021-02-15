@@ -10,4 +10,4 @@ cdef class Constraint:
     cdef vector[double] *strength
     cdef public list particles
     cdef void calculate(Constraint, double[:,:] arr) nogil
-    cdef void sum_moves(Constraint, double[:,:] p_sum, double[:] w_sum) nogil
+    cdef void sum_moves(Constraint, double[:,:] p_sum) nogil
