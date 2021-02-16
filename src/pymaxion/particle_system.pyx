@@ -220,7 +220,6 @@ cdef class ParticleSystem(object):
         cdef double v_sum
         cdef double tx, ty, tz
         cdef double vx, vy, vz
-
         self.initialize_system()
         flag = False
         self.num_iter = 0
@@ -236,14 +235,12 @@ cdef class ParticleSystem(object):
             self.constraints[i] = <PyObject*>self.ref_constraints[i]
         with nogil:
             while flag == False:
-                for j in range(self.n_particles):
-                    p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
-                    p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
-                    p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
                 for j in range(self.n_constraints):
                     (<Constraint?>self.constraints[j]).calculate(p_pos)
-                for j in range(self.n_constraints):
+                # remove second loop until prange sorted out
+                # for j in range(self.n_constraints):
                     (<Constraint?>self.constraints[j]).sum_moves(p_moves)
+                v_sum = 0.0 # reset velocity sum
                 for j in range(self.n_particles):
                     if (p_moves[j, 0] == 0.0 and
                         p_moves[j, 1] == 0.0 and
@@ -265,12 +262,13 @@ cdef class ParticleSystem(object):
                             p_vel[j, 1] = vy
                             p_vel[j, 2] = vz
                     p_moves[j] = 0.0
-                self.num_iter += 1
-                v_sum = 0.0
-                for j in range(self.n_particles):
                     v_sum += p_vel[j, 0] * p_vel[j, 0] + \
                              p_vel[j, 1] * p_vel[j, 1] + \
                              p_vel[j, 2] * p_vel[j, 2]
+                    p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
+                    p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
+                    p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
+                self.num_iter += 1
                 v_sum = v_sum / self.n_particles
                 if v_sum < ke or max_iter <= self.num_iter:
                     flag = True
