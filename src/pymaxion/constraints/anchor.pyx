@@ -19,6 +19,10 @@ cdef class Anchor(Constraint):
 
     def __init__(Anchor self, list particles, double strength=1.0,
                  list anchor_pt=[], list p_index=[]):
+        """
+        Anchor constraint based on a single particle in a list with a given strength.
+        Anchor point can be set to different location than that of the current particle position.
+        """
 
         if len(particles) != self.constraint_n_particles:
             raise ValueError("Incorrect number of particles for Anchor")
@@ -37,6 +41,7 @@ cdef class Anchor(Constraint):
 
         self.strength.push_back(strength)
 
+        # Add particle by p_index only if it exists... housekeeping
         if p_index:
             for ind in p_index:
                 self.particle_index.push_back(ind)

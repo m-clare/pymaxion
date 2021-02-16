@@ -6,9 +6,6 @@ import sys
 import numpy as np
 from profilehooks import profile
 import json
-
-sys.path.append('/Users/maryannewachter/workspaces/current/pymaxion/src')
-
 # Pymaxion imports
 from pymaxion.constraints.anchor import Anchor
 from pymaxion.particle_system import ParticleSystem
@@ -16,9 +13,11 @@ from pymaxion.particle import Particle
 from pymaxion.constraints.cable import Cable
 from pymaxion.constraints.force import Force
 
+
 class create_particle_system(Operator):
     bl_idname = 'pymaxion_blender.create_particle_system'
     bl_label = 'Create Particle System'
+
     def execute(self, context):
         obj = bpy.context.active_object
         if obj.type == 'MESH':
@@ -27,12 +26,13 @@ class create_particle_system(Operator):
             raise TypeError('Particle System must come from a mesh.')
         return {'FINISHED'}
 
+
 class write_particle_system(Operator):
     bl_idname = 'pymaxion_blender.write_particle_system'
     bl_label = 'Write Particle System'
 
     def execute(self, context):
-        data = {} # for json
+        data = {}  # for json
         obj = bpy.data.objects['Pymaxion Particle System']
         me = obj.data
 
@@ -43,13 +43,14 @@ class write_particle_system(Operator):
         data['Cables'] = {}
         if obj.data['Cables']:
             for cable, attr in obj.data['Cables'].items():
-                strength = attr['E'] * attr['A']
-                data['Cables'].update({cable: strength})
+                E = attr['E']
+                A = attr['A']
+                data['Cables'].update({cable: {'E': E, 'A': A}})
         data['Anchors'] = {}
         if obj.data['Anchors']:
             for anchor, attr in obj.data['Anchors'].items():
                 strength = attr['strength']
-                data['Anchors'].update({anchor: strength})
+                data['Anchors'].update({anchor: {'strength': strength}})
         data['Forces'] = {}
         if obj.data['Forces']:
             for force, attr in obj.data['Forces'].items():
@@ -208,6 +209,7 @@ class PYMAXION_OT_anchorConstraint(Operator):
                 print(key, obj.data['Anchors'][key]['strength'])
         print('Showing anchors')
 
+
 class PYMAXION_OT_cableConstraint(Operator):
     bl_idname = 'pymaxion_blender.cable_constraint'
     bl_label = 'Cable Constraint'
@@ -257,6 +259,7 @@ class PYMAXION_OT_cableConstraint(Operator):
     @staticmethod
     def show_cables(context):
         print('Showing cables')
+
 
 class PYMAXION_OT_forceConstraint(Operator):
     bl_idname = 'pymaxion_blender.force_constraint'

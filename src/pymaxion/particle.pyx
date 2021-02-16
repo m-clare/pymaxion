@@ -10,6 +10,25 @@ from pymaxion.geometry.Point3d cimport Point3d
 from libc.stdlib cimport free
 
 cdef class Particle(object):
+    """Particle definition for the base elements in a particle system.
+
+    Properties
+    ----------
+    position: tuple
+        The position of the particle in 3d space (x, y, z).
+
+    start_position: tuple
+        The initial position of the particle in 3d space (x, y, z).
+
+    sum_moves: tuple
+        The sum of all moves of constraints on a particle.
+
+    velocity: tuple
+        The velocity of a particle.
+
+    system_index: int
+       The index of the particle in the assembled particle system.
+    """
 
     def __cinit__(Particle self):
         self.position = new Point3d()

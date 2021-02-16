@@ -16,6 +16,14 @@ cdef class Bar(Constraint):
     def __init__(Bar self, list particles,
                  double E, double A, double initial_length=0.0,
                  list p_index=[]):
+        """
+        Bar constraint based on two points.
+        Can be in tension or compression.
+        Bar length can be different than initial particle positions.
+        E corresponds to  Elastic (Young's) modulus (N/m^2).
+        A corresponds to bar area (m).
+        Units conversion to come later.
+        """
 
         if len(particles) != self.constraint_n_particles:
             raise ValueError("Incorrect number of particles for Bar")

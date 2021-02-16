@@ -21,6 +21,10 @@ cdef class Constraint(object):
         self.constraint_n_particles = 1 # min particle number
 
     def __init__(Constraint self, list particles=[]):
+        """
+        Base constraint class.
+        Not to be used on its own.
+        """
         self.particles = []
 
         for particle in particles:

@@ -5,17 +5,17 @@
 # cython: linetrace = True
 # cython: language_level = 3
 
-
 cimport cython
-import numpy as np
 from cpython cimport PyObject
 from cython.parallel import parallel, prange
 from libc.stdlib cimport malloc, free
 from libcpp.vector cimport vector
 from numpy cimport ndarray
-from libc.stdio cimport printf
+from numpy import zeros
+from numpy import double as npd
 import json
 
+# Fix to have single import for all constraints
 from pymaxion.constraints.constraint cimport Constraint
 from pymaxion.constraints.anchor cimport Anchor
 from pymaxion.constraints.cable cimport Cable
@@ -62,6 +62,9 @@ cdef class ParticleSystem(object):
 
     @classmethod
     def from_json(cls, filepath):
+        """
+        Construct particle system from json file.
+        """
         with open(filepath, 'r') as fh:
             data = json.load(fh)
         points = data['Particles']
@@ -73,26 +76,26 @@ cdef class ParticleSystem(object):
         for pt in points:
             ps.add_particle_to_system(Particle(pt[0], pt[1], pt[2]))
 
-        for key, prop in cables.items():
+        for key, attr in cables.items():
             p_ind = eval(key)
             p0 = ps.ref_particles[p_ind[0]]
             p1 = ps.ref_particles[p_ind[1]]
-            E = prop
-            A = 1
+            E = attr['E']
+            A = attr['A']
             cable = Cable([p0, p1], E, A)
             ps.add_constraint_to_system(cable)
 
-        for key, prop in anchors.items():
+        for key, attr in anchors.items():
             p_ind = eval(key)
-            strength = prop
+            strength = attr['strength']
             p0 = ps.ref_particles[p_ind]
             anchor = Anchor([p0], strength)
             ps.add_constraint_to_system(anchor)
 
-        for key, prop in forces.items():
+        for key, attr in forces.items():
             p_ind = eval(key)
             p0 = ps.ref_particles[p_ind]
-            force = Force([p0], prop)
+            force = Force([p0], attr)
             ps.add_constraint_to_system(force)
 
         return ps
@@ -113,10 +116,16 @@ cdef class ParticleSystem(object):
         return p_ind
 
     cpdef add_particles_to_system(ParticleSystem self, list particles):
+        """
+        Add particles to a particle system based on a list of particles.
+        """
         for particle in particles:
             self.add_particle_to_system(particle)
 
     cpdef add_constraint_to_system(ParticleSystem self, Constraint constraint):
+        """
+        Add constraint to a particle system.
+        """
         for particle in constraint.particles:
             p_ind = self.find_particle_index(particle)
             if p_ind is None:
@@ -131,99 +140,70 @@ cdef class ParticleSystem(object):
         self.n_constraints += 1
 
     cpdef add_constraints_to_system(ParticleSystem self, list constraints):
+        """
+        Add constraints to a particle system based on a list of constraints.
+        """
         for constraint in constraints:
             self.add_constraint_to_system(constraint)
 
     cpdef find_particle_index(ParticleSystem self, Particle particle):
+        """
+        Retrieve particle index (int) if it is a particle already in the particle system.
+        Current tolerance is 1e-3 for merging particle positions.
+        """
         pos = particle.position[0]
         trunc = (round(pos.x, 3), round(pos.y, 3), round(pos.z, 3))
         if trunc in self.ref_positions:
             return self.ref_positions[trunc]
 
     cpdef assign_particle_index(ParticleSystem self, Particle particle):
+        """
+        Assign a particle index to a particle.
+        """
         particle.system_index = self.n_particles # zero indexed
         self.n_particles += 1
         return particle.system_index
 
     cpdef initialize_system(ParticleSystem self):
-        '''
-        Initialize matrices for vector solve
-        '''
+        """ 
+        Initialize numpy matrices for vector solve (memory views in Cython).
+        """
         cdef int i
-        self.particle_positions   = np.zeros((self.n_particles, 3),
-                                            dtype=np.double)
-        self.particle_velocities  = np.zeros((self.n_particles, 3),
-                                            dtype=np.double)
-        self.particle_sum_moves   = np.zeros((self.n_particles, 3),
-                                            dtype=np.double)
-        self.particle_sum_weights = np.zeros((self.n_particles),
-                                             dtype=np.double)
+        self.particle_positions   = zeros((self.n_particles, 3),
+                                           dtype=npd)
+        self.particle_velocities  = zeros((self.n_particles, 3),
+                                           dtype=npd)
+        self.particle_sum_moves   = zeros((self.n_particles, 3),
+                                           dtype=npd)
+        self.particle_sum_weights = zeros((self.n_particles),
+                                           dtype=npd)
         for i in range(self.n_particles):
             particle = self.ref_particles[i]
             self.particle_positions[i, :] = particle.position
             self.particle_velocities[i,:] = particle.velocity
 
-    cdef void move_particles(ParticleSystem self, int j, double[:, :] p_moves,
-                            double[:] p_weights, double[:, :] p_pos,
-                            double[:, :] p_vel) nogil:
-        '''
-        Global move for particles once local solve completed
-        '''
-        cdef double nx, ny, nz
-        cdef double vx, vy, vz
-        cdef Vector3d p_sum
-        nx = 0.0
-        ny = 0.0
-        nz = 0.0
-        if p_weights[j] != 0.0:
-            nx = p_moves[j, 0] / p_weights[j]
-            ny = p_moves[j, 1] / p_weights[j]
-            nz = p_moves[j, 2] / p_weights[j]
-        vx = p_vel[j, 0] + nx
-        vy = p_vel[j, 1] + ny
-        vz = p_vel[j, 2] + nz
-        if (nx*vx + ny*vy + nz*vz) < 0.0:
-            # reversed direction slowdown
-            vx = vx * 0.9
-            vy = vy * 0.9
-            vz = vz * 0.9
-        p_pos[j, 0] += nx
-        p_pos[j, 1] += ny
-        p_pos[j, 2] += nz
-        p_sum = Vector3d(nx, ny, nz)
-        if (p_sum.length() < 1e-10):
-            vx = 0.0
-            vy = 0.0
-            vz = 0.0
-        p_vel[j, 0] = vx
-        p_vel[j, 1] = vy
-        p_vel[j, 2] = vz
-
     cpdef finalize_system(ParticleSystem self):
-        '''
-        Update particle objects with their new positions
-        '''
+        """
+        Update particle objects with their new positions at end of solve.
+        """
         for i in range(self.n_particles):
             matrix_pos = self.particle_positions[i]
             current_particle = self.ref_particles[i]
             cx, cy, cz = matrix_pos[0], matrix_pos[1], matrix_pos[2]
             current_particle.set_position(cx, cy, cz)
 
-    cpdef solve_intermediate(ParticleSystem self, double ke=1e-10, int max_iter=10000,
-                             bint parallel=False):
+    cpdef solve(ParticleSystem self, double ke=1e-10, int max_iter=10000,
+                bint parallel=False):
+        """
+        Main solver for projective DR.
+        """
         cdef int i
         cdef int j
         cdef bint flag
         cdef double v_sum
-        cdef double tx
-        cdef double ty
-        cdef double tz
-        cdef double px
-        cdef double py
-        cdef double pz
-        cdef double vx
-        cdef double vy
-        cdef double vz
+        cdef double tx, ty, tz
+        cdef double px, py, pz
+        cdef double vx, vy, vz
 
         self.initialize_system()
         flag = False
@@ -249,10 +229,10 @@ cdef class ParticleSystem(object):
                 for j in range(self.n_constraints):
                     (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
                 for j in range(self.n_particles):
-                    if (p_moves[j, 0] == 0.0  and p_moves[j, 1] == 0.0  and p_moves[j, 2] == 0.0):
-                        p_vel[j][0] = 0
-                        p_vel[j][1] = 0
-                        p_vel[j][2] = 0
+                    if (p_moves[j, 0] == 0.0 and
+                        p_moves[j, 1] == 0.0 and
+                        p_moves[j, 2] == 0.0):
+                        p_vel[j] = 0.0
                     else:
                         tx = p_moves[j, 0] / p_weights[j]
                         ty = p_moves[j, 1] / p_weights[j]
@@ -282,131 +262,3 @@ cdef class ParticleSystem(object):
                 v_sum = v_sum / self.n_particles
                 if v_sum < ke or max_iter <= self.num_iter:
                     flag = True
-
-
-
-
-    cpdef solve(ParticleSystem self, double ke=1e-15, int max_iter=10000,
-                bint parallel=False):
-        cdef int i
-        cdef int j
-        cdef bint flag
-        cdef double v_sum
-
-        # assemble position matrix
-        self.initialize_system()
-        flag = False
-        self.num_iter = 0
-        # memory view must be created before nogil
-        cdef double [:, :] p_pos = self.particle_positions
-        cdef double [:, :] p_vel = self.particle_velocities
-        cdef double [:, :] p_moves = self.particle_sum_moves
-        cdef double [:]  p_weights = self.particle_sum_weights
-        # set up C++ only objects for nogil
-        self.constraints = <PyObject **>malloc(self.n_constraints*cython.sizeof(
-                                         cython.pointer(PyObject)))
-        for i in range(self.n_constraints):
-            self.constraints[i] = <PyObject*>self.ref_constraints[i]
-        for i in range(max_iter):
-            if flag == True:
-                break
-            # release GIL for parallel constraint solve
-            with nogil:
-                '''
-                System local constraint solve
-                '''
-                if parallel:
-                    for j in prange(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).calculate(p_pos)
-                    for j in range(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
-                else:
-                    for j in range(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).calculate(p_pos)
-                    for j in range(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
-                # move the particles
-                for j in range(self.n_particles):
-                    self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
-                v_sum = 0.0
-                for j in range(self.n_particles):
-                    v_sum += p_vel[j, 0] * p_vel[j, 0] + \
-                             p_vel[j, 1] * p_vel[j, 1] + \
-                             p_vel[j, 2] * p_vel[j, 2]
-                v_sum = v_sum / self.n_particles
-                if v_sum < ke:
-                    flag = True
-                # reset moves and weights
-                self.num_iter+= 1
-                p_weights[:] = 0.0
-                p_moves[:, :] = 0.0
-
-    # TO BE REMOVED ?? FLAG INSTEAD?
-    cpdef solve_animate(ParticleSystem self, double ke=1e-10, int max_iter=10000, bint parallel=False, int step=10):
-        cdef int i
-        cdef int j
-        cdef int k
-        cdef bint flag
-        cdef double v_sum
-        cdef double[:, :, :] frames = np.zeros((self.n_particles, 3,
-                                                max_iter // step + 1),
-                                                dtype=np.double)
-
-        # assemble position matrix
-        self.initialize_system()
-        flag = False
-        self.num_iter = 0
-        k = 0
-        # memory view must be created before nogil
-        cdef double [:, :] p_pos = self.particle_positions
-        cdef double [:, :] p_vel = self.particle_velocities
-        cdef double [:, :] p_moves = self.particle_sum_moves
-        cdef double [:]  p_weights = self.particle_sum_weights
-        # set up C++ only objects for nogil
-        self.constraints = <PyObject **>malloc(self.n_constraints*cython.sizeof(
-                                         cython.pointer(PyObject)))
-        for i in range(self.n_constraints):
-            self.constraints[i] = <PyObject*>self.ref_constraints[i]
-        for i in range(max_iter):
-            if flag == True:
-                frames[:, :, k] = p_pos
-                break
-            # release GIL for parallel constraint solve
-            with nogil:
-                if parallel:
-                    for j in prange(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).calculate(p_pos)
-                    for j in prange(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
-                else:
-                    for j in range(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).calculate(p_pos)
-                    for j in range(self.n_constraints):
-                        (<Constraint?>self.constraints[j]).sum_moves(p_moves, p_weights)
-                # move the particles
-                for j in range(self.n_particles):
-                    self.move_particles(j, p_moves, p_weights, p_pos, p_vel)
-                v_sum = 0.0
-                for j in range(self.n_particles):
-                    v_sum += p_vel[j, 0] * p_vel[j, 0] + \
-                                  p_vel[j, 1] * p_vel[j, 1] + \
-                                  p_vel[j, 2] * p_vel[j, 2]
-                v_sum = v_sum / self.n_particles
-                if v_sum < ke:
-                    flag = True
-                    # reset moves and weights
-                self.num_iter+= 1
-                p_weights[:] = 0.0
-                p_moves[:, :] = 0.0
-                if (i % 10 == 0):
-                    frames[:, :, k] = p_pos
-                    k += 1
-
-        return frames
-
-
-
-
-
-
-

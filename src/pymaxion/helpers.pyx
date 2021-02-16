@@ -10,14 +10,19 @@ from numpy cimport abs
 from pymaxion.geometry.Point3d cimport Point3d
 
 def create_2d_mv(ndarray arr):
-    cdef double[:, :] mv =  arr
+    """helper function for creating a 2d memory view on the fly for debugging."""
+    cdef double[:, :] mv = arr
     return mv
 
 def create_1d_mv(ndarray arr):
+    """helpr function for creating a 1d memory view on the fly for debugging."""
     cdef double[:] mv = arr
     return mv
 
 cdef bint pt_within_tolerance(Point3d pt0, Point3d pt1, double tol=1e-3):
+    """
+    cpp based tolerance check of point distance -- currently not used
+    """
     cdef bint x_close, y_close, z_close
 
     x_close = abs(pt0.x - pt1.x) < tol
@@ -27,6 +32,14 @@ cdef bint pt_within_tolerance(Point3d pt0, Point3d pt1, double tol=1e-3):
     return (x_close & y_close & z_close)
 
 def pos_within_tolerance(tuple pt0, tuple pt1, double tol=1e-3):
+    """
+    Tolerance check to determine if particle is within 1e-3 of another.
+
+    Returns
+    -------
+    bool
+        True if close.
+    """
 
     x_close = abs(pt0[0] - pt1[0]) < tol
     y_close = abs(pt0[1] - pt1[1]) < tol

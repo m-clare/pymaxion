@@ -16,6 +16,14 @@ cdef class Cable(Constraint):
     def __init__(Cable self, list particles,
                  double E, double A, double rest_length=0.0,
                  list p_index=[]):
+        """
+        Cable constraint based on two points.
+        Tension only element.
+        Cable can be prestressed (initial length different than rest length).
+        E corresponds to Elastic (Young's) modulus (N/m^2).
+        A corresponds to bar area (m).
+        Units conversion to come later.
+        """
 
         if len(particles) != self.constraint_n_particles:
             raise ValueError("Incorrect number of particles for Cable")

@@ -15,10 +15,17 @@ cdef class Force(Constraint):
 
     def __init__(Force self, list particles,
                  list force_vector, list p_index=[]):
-        
+        """
+        Force constraint (point load on a particle).
+        Should be revised to allow for Vector3d initialization.
+        """
+
         if len(particles) != self.constraint_n_particles:
             raise ValueError("Incorrect number of particles for Force")
         super().__init__(particles)
+
+        if len(force_vector) != 3:
+            raise ValueError("Incorrect size of force vector for point force")
 
         self.move_vectors.push_back(Vector3d(force_vector[0],
                                              force_vector[1],
