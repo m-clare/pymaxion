@@ -19,7 +19,7 @@ namespace geometry {
   }
 
   double Vector3d::length(){
-    double ls = this->x*this->x + this->y*this->y + this->z*this->z;
+    double ls = Vector3d::length_squared();
     return (std::sqrt(ls));
   }
 

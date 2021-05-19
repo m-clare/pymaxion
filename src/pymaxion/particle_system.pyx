@@ -218,8 +218,6 @@ cdef class ParticleSystem(object):
         cdef int j
         cdef bint flag
         cdef double v_sum
-        cdef double tx, ty, tz
-        cdef double vx, vy, vz
         self.initialize_system()
         flag = False
         self.num_iter = 0
@@ -240,35 +238,45 @@ cdef class ParticleSystem(object):
                 # remove second loop until prange sorted out
                 # for j in range(self.n_constraints):
                     (<Constraint?>self.constraints[j]).sum_moves(p_moves)
-                v_sum = 0.0 # reset velocity sum
-                for j in range(self.n_particles):
-                    if (p_moves[j, 0] == 0.0 and
-                        p_moves[j, 1] == 0.0 and
-                        p_moves[j, 2] == 0.0):
-                        p_vel[j] = 0.0
-                    else:
-                        tx = p_moves[j, 0] / p_weights[j]
-                        ty = p_moves[j, 1] / p_weights[j]
-                        tz = p_moves[j, 2] / p_weights[j]
-                        vx = p_vel[j, 0] + tx
-                        vy = p_vel[j, 1] + ty
-                        vz = p_vel[j, 2] + tz
-                        if ((tx * vx + ty * vy + tz * vz) < 0.0):
-                            p_vel[j, 0] = vx * 0.9
-                            p_vel[j, 1] = vy * 0.9
-                            p_vel[j, 2] = vz * 0.9
-                        else:
-                            p_vel[j, 0] = vx
-                            p_vel[j, 1] = vy
-                            p_vel[j, 2] = vz
-                    p_moves[j] = 0.0
-                    v_sum += p_vel[j, 0] * p_vel[j, 0] + \
-                             p_vel[j, 1] * p_vel[j, 1] + \
-                             p_vel[j, 2] * p_vel[j, 2]
-                    p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
-                    p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
-                    p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
+                v_sum = self.damped_solve(p_moves, p_weights, p_vel, p_pos, self.n_particles)
                 self.num_iter += 1
                 v_sum = v_sum / self.n_particles
                 if v_sum < ke or max_iter <= self.num_iter:
                     flag = True
+
+    cdef double damped_solve(ParticleSystem self, double[:, :] p_moves, double[:] p_weights,
+                             double[:, :] p_vel, double[:, :] p_pos, int n_particles) nogil:
+    # this can be parallelized...
+        cdef int j
+        cdef double tx, ty, tz
+        cdef double vx, vy, vz
+        cdef double v_sum # value to return to larger function
+        v_sum = 0.0 # reset every step
+        for j in range(n_particles):
+            if (p_moves[j, 0] == 0.0 and
+                p_moves[j, 1] == 0.0 and
+                p_moves[j, 2] == 0.0):
+                p_vel[j] = 0.0
+            else:
+                tx = p_moves[j, 0] / p_weights[j]
+                ty = p_moves[j, 1] / p_weights[j]
+                tz = p_moves[j, 2] / p_weights[j]
+                vx = p_vel[j, 0] + tx
+                vy = p_vel[j, 1] + ty
+                vz = p_vel[j, 2] + tz
+                if ((tx * vx + ty * vy + tz * vz) < 0.0):
+                    p_vel[j, 0] = vx * 0.9
+                    p_vel[j, 1] = vy * 0.9
+                    p_vel[j, 2] = vz * 0.9
+                else:
+                    p_vel[j, 0] = vx
+                    p_vel[j, 1] = vy
+                    p_vel[j, 2] = vz
+                p_moves[j] = 0.0
+                v_sum += p_vel[j, 0] * p_vel[j, 0] + \
+                         p_vel[j, 1] * p_vel[j, 1] + \
+                         p_vel[j, 2] * p_vel[j, 2]
+                p_pos[j, 0] = p_pos[j, 0] + p_vel[j, 0]
+                p_pos[j, 1] = p_pos[j, 1] + p_vel[j, 1]
+                p_pos[j, 2] = p_pos[j, 2] + p_vel[j, 2]
+        return v_sum

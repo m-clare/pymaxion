@@ -15,4 +15,7 @@ def run_system():
     print(psystem.num_iter)
 
 if __name__ == "__main__":
+    import time
+    start = time.time()
     run_system()
+    print(time.time() - start)
