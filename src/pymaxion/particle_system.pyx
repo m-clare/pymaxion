@@ -19,6 +19,7 @@ import json
 from pymaxion.constraints.constraint cimport Constraint
 from pymaxion.constraints.anchor cimport Anchor
 from pymaxion.constraints.cable cimport Cable
+from pymaxion.constraints.bar cimport Bar
 from pymaxion.constraints.force cimport Force
 from pymaxion.particle cimport Particle
 from pymaxion.geometry.Vector3d cimport Vector3d
@@ -76,36 +77,49 @@ cdef class ParticleSystem(object):
         """
         with open(filepath, 'r') as fh:
             data = json.load(fh)
-        points = data['Particles']
-        cables = data['Cables']
-        anchors = data['Anchors']
-        forces = data['Forces']
 
         ps = cls()
-        for pt in points:
-            ps.add_particle_to_system(Particle(pt[0], pt[1], pt[2]))
 
-        for key, attr in cables.items():
-            p_ind = eval(key)
-            p0 = ps.ref_particles[p_ind[0]]
-            p1 = ps.ref_particles[p_ind[1]]
-            E = attr['E']
-            A = attr['A']
-            cable = Cable([p0, p1], E, A)
-            ps.add_constraint_to_system(cable)
+        if not data['Particles']:
+            raise ValueError('No particles found.')
+        else:
+            for pt in data['Particles']:
+                ps.add_particle_to_system(Particle(pt[0], pt[1], pt[2]))
 
-        for key, attr in anchors.items():
-            p_ind = eval(key)
-            strength = attr['strength']
-            p0 = ps.ref_particles[p_ind]
-            anchor = Anchor([p0], strength)
-            ps.add_constraint_to_system(anchor)
+        if 'Cables' in data:
+            for key, attr in data['Cables'].items():
+                p_ind = eval(key)
+                p0 = ps.ref_particles[p_ind[0]]
+                p1 = ps.ref_particles[p_ind[1]]
+                E = attr['E']
+                A = attr['A']
+                cable = Cable([p0, p1], E, A)
+                ps.add_constraint_to_system(cable)
 
-        for key, attr in forces.items():
-            p_ind = eval(key)
-            p0 = ps.ref_particles[p_ind]
-            force = Force([p0], attr)
-            ps.add_constraint_to_system(force)
+        if 'Bars' in data:
+            for key, attr in data['Bars'].items():
+                p_ind = eval(key)
+                p0 = ps.ref_particles[p_ind[0]]
+                p1 = ps.ref_particles[p_ind[1]]
+                E = attr['E']
+                A = attr['A']
+                bar = Bar([p0, p1], E, A)
+                ps.add_constraint_to_system(bar)
+
+        if 'Anchors' in data:
+            for key, attr in data['Anchors'].items():
+                p_ind = eval(key)
+                strength = attr['strength']
+                p0 = ps.ref_particles[p_ind]
+                anchor = Anchor([p0], strength)
+                ps.add_constraint_to_system(anchor)
+
+        if 'Forces' in data:
+            for key, attr in data['Forces'].items():
+                p_ind = eval(key)
+                p0 = ps.ref_particles[p_ind]
+                force = Force([p0], attr)
+                ps.add_constraint_to_system(force)
 
         return ps
 
