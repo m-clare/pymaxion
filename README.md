@@ -1,11 +1,11 @@
 # Pymaxion
-Multi-purpose projective solver for geometric and structural problems. Written in Cython to go wicked fast. Currently only tested against Python3. Based on ideas from [ShapeOp](https://shapeop.org/) and [Dynamic Relaxation](https://en.wikipedia.org/wiki/Dynamic_relaxation). Many thanks to @shapr for the name!
+Multi-purpose projective solver for geometric and structural problems. Written in Cython to go wicked fast. Currently only tested against Python3. Based on ideas from [ShapeOp](https://shapeop.org/) and [Dynamic Relaxation](https://en.wikipedia.org/wiki/Dynamic_relaxation). Many thanks to [@shapr](https://github.com/shapr) for the name!
 
 ## General Build Instructions
 Pymaxion utilizes Cython, so it must be compiled before running test cases. A minimal Dockerfile is provided that avoids any OS/missing compiler issues if you want to get up and running quickly!
 
 ## Linux/Mac Build Instructions
-To compile with OpenMP for parallelism, you must first install ```gcc```, (I did this using Homebrew). To compile from terminal, make sure to alias the correct gcc, as Apple's default CLang may not support OpenMP.
+To compile with OpenMP for parallelism (a future feature), you must first install ```gcc```, (I did this using Homebrew). To compile from terminal, make sure to alias the correct gcc, as Apple's default CLang may not support OpenMP.
 
 ```python
 cd pymaxion/src
