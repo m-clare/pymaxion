@@ -1,10 +1,10 @@
 {
   "exclude": [
     "/Users/maryannewachter/workspaces/current"
-  ],
+  ]
   "include": [
     "./blender_pymaxion",
-    "../pymaxion/src"
+    "../../pymaxion/src"
   ],
   "venv": "blenderpy",
   "venvPath": "/Users/maryannewachter/.virtualenvs"

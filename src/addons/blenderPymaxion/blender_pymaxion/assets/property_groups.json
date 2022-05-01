@@ -1,0 +1,96 @@
+{
+  "Anchor": [
+    {
+      "name": "base",
+      "type": "float",
+      "attr": "base",
+      "min": 1,
+      "max": 10,
+      "default": 1,
+      "precision": 2
+    },
+    {
+      "name": "power",
+      "type": "int",
+      "attr": "power",
+      "min": -30,
+      "max": 30,
+      "default": 20
+    }
+  ],
+  "Cable": [
+    {
+      "name": "base",
+      "type": "float",
+      "attr": "base",
+      "min": 1,
+      "max": 10,
+      "default": 1,
+      "precision": 2
+    },
+    {
+      "name": "power",
+      "type": "int",
+      "attr": "power",
+      "min": -20,
+      "max": 20,
+      "default": 6
+    },
+    {
+      "name": "diameter",
+      "type": "float",
+      "attr": "diameter",
+      "min": 1e-3,
+      "max": 2,
+      "default":0.05,
+      "precision": 3
+    }
+  ],
+  "Bar": [
+    {
+      "name": "base",
+      "type": "float",
+      "attr": "base",
+      "min": 1,
+      "max": 10,
+      "default": 1,
+      "precision": 2
+    },
+    {
+      "name": "power",
+      "type": "int",
+      "attr": "power",
+      "min": -20,
+      "max": 20,
+      "default": 6
+    },
+    {
+      "name": "area",
+      "type": "float",
+      "attr": "area",
+      "min": 1e-3,
+      "max": 2,
+      "default": 0.05,
+      "precision": 3
+    }
+  ],
+  "Force": [
+    {
+      "name": "base",
+      "type": "float",
+      "attr": "base",
+      "min": 1,
+      "max": 10,
+      "default": 1,
+      "precision": 2
+    },
+    {
+      "name": "power",
+      "type": "int",
+      "attr": "power",
+      "min": -20,
+      "max": 20,
+      "default": 6
+    }
+  ]
+}
