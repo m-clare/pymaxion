@@ -31,12 +31,9 @@ def makeExtension(extName):
 
 # Find all includes
 numpy_include = numpy.get_include()
-
 # Add includes for C++ only libraries (no .pyx wrapped)
 geo_include = os.path.abspath("./pymaxion/geometry")
-
 extNames = scandir("pymaxion")
-
 
 # build up set of Extension objects
 extensions = [makeExtension(name) for name in extNames]
@@ -46,7 +43,9 @@ setup_args = {
     "name": "pymaxion",
     "packages": ["pymaxion", "pymaxion.goals", "pymaxion.geometry"],
     "py_modules": [],
-    "ext_modules": cythonize(extensions, emit_linenums=True, compiler_directives={'language_level': 3}),
+    "ext_modules": cythonize(extensions,
+                             emit_linenums=True,
+                             compiler_directives={'language_level': 3}),
     "requires": [],
     "cmdclass": {"build_ext": build_ext},
 }
