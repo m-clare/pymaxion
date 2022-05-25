@@ -16,7 +16,7 @@ python3 setup.py build_ext --inplace
 Once you've built the package, you should be able to import modules with the same hierarchy as you would any Python package by adding ```./pymaxion/src``` to your ```$PYTHONPATH```.
 
 ## More Information
-The initial development of this project, touching on Cython performance, profiling Cython, and developing [Blender](https://www.blender.org/) add-ons using C-extensions generated from Cython, was presented at [Pycon 2022](https://www.youtube.com/watch?v=TE3M3XfwSN4).
+The initial development of this project, touching on Cython performance, profiling Cython, and developing [Blender](https://www.blender.org/) add-ons using C-extensions generated from Cython, was presented at [Pycon 2022](https://www.youtube.com/watch?v=TE3M3XfwSN4). The slide deck from the presentation is [here](./presentations/).
 
 Other relevant development information and process documentation can be found in the following blog posts:
 - [Performance Comparison Across Three Languages](https://mclare.blog/posts/performance-comparison-across-three-languages)
